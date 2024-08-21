@@ -1,4 +1,3 @@
-import folder from "../models/folder.js";
 import booksService from "../services/books_service.js";
 import foldersService from "../services/folders_service.js";
 import { validationResult } from "express-validator";
