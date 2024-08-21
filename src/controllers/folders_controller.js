@@ -1,11 +1,9 @@
-import { query } from "express";
 import foldersService from "../services/folders_service.js";
 import { validationResult } from "express-validator";
 
 const index = async (req, res) => {
-  const query = {
-    user: req.user_id,
-  };
+  const query = {};
+  if (req.user_id) query.user = req.user_id;
 
   foldersService
     .getFolders(query)

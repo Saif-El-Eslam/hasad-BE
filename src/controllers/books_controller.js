@@ -9,10 +9,9 @@ const index = async (req, res) => {
     return res.status(400).json({ errors: validation_result.errors });
   }
 
-  const query = {
-    user: req.user_id,
-    folder: req.params.folderId,
-  };
+  const query = {};
+  if (req.user_id) query.user = req.user_id;
+  if (req.params.folderId) query.folder = req.params.folderId;
 
   booksService
     .getBooks(query)
