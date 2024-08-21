@@ -12,9 +12,9 @@ const createFolder = async (folder) => {
 };
 
 // get all folders
-const getFolders = async () => {
+const getFolders = async (query = {}) => {
   try {
-    const folders = await Folder.find();
+    const folders = await Folder.find(query);
     return folders;
   } catch (error) {
     throw new Error(error.message);
@@ -43,6 +43,20 @@ const updateFolder = async (id, folder) => {
   }
 };
 
+// increase the number of books in a folder
+const changeNumOfBooks = async (id, num) => {
+  try {
+    const folder = await Folder.findById(id);
+    folder.num_of_books += num;
+    const updatedFolder = await Folder.findByIdAndUpdate(id, folder, {
+      new: true,
+    });
+    return updatedFolder;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
 // delete a folder
 const deleteFolder = async (id) => {
   try {
@@ -59,4 +73,5 @@ export default {
   getFolderById,
   updateFolder,
   deleteFolder,
+  changeNumOfBooks,
 };

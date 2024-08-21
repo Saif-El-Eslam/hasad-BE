@@ -39,7 +39,10 @@ const login = [
   body("password").notEmpty().withMessage("Password is required"),
 ];
 
+const logout = [];
+
 export default {
   register,
   login,
+  logout,
 };

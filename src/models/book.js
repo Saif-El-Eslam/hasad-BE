@@ -22,10 +22,11 @@ const bookSchema = new mongoose.Schema(
     },
     num_of_benefits: {
       type: Number,
+      default: 0,
       required: false,
     },
   },
   { timestamps: true }
 );
 
-export const Book = mongoose.model("Book", bookSchema);
+export default mongoose.model("Book", bookSchema);
