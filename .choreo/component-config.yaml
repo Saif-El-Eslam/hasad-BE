@@ -17,3 +17,8 @@ environment:
     - DEV_DB_URL=mongodb+srv://hasad:hasad@cluster0.86bux.mongodb.net/development?retryWrites=true&w=majority&appName=Cluster0
     - PROD_DB_URL=mongodb+srv://hasad:hasad@cluster0.86bux.mongodb.net/production?retryWrites=true&w=majority&appName=Cluster0
     - JWT_SECRET=hasad_secret_352
+
+endpoints:
+  - path: /api/(.*)
+    method: GET
+    handler: ./api/server.js
