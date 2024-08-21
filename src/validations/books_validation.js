@@ -43,7 +43,7 @@ const isBookMatchFolder = async (value, { req }) => {
 
 const index = [
   param("folderId")
-    .notEmpty()
+    .optional()
     .isMongoId()
     .withMessage("Folder ID must be a valid Mongo ID")
     .custom(isFolderExists),
@@ -57,7 +57,7 @@ const create = [
     .withMessage("Name must be a string"),
   body("author").optional().isString().withMessage("Author must be a string"),
   param("folderId")
-    .notEmpty()
+    .optional()
     .isMongoId()
     .withMessage("Folder ID must be a valid Mongo ID")
     .custom(isFolderExists),
