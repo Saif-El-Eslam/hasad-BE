@@ -16,6 +16,8 @@ router.delete(
   booksRoutes.destroy
 );
 
+router.use("/:bookId/benefits", authenticate, BenefitsRoutes);
+
 router.use(
   "/benefits",
   (req, res, next) => {
@@ -27,6 +29,5 @@ router.use(
   authenticate,
   BenefitsRoutes
 );
-router.use("/:bookId/benefits", authenticate, BenefitsRoutes);
 
 export default router;

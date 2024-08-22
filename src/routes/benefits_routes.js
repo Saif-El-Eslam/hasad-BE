@@ -5,6 +5,26 @@ import benefitsValidation from "../validations/benefits_validation.js";
 
 const router = express.Router({ mergeParams: true });
 
+router.get("/", authenticate, benefitsValidation.index, benefitsRoutes.index);
+router.post(
+  "/",
+  authenticate,
+  benefitsValidation.create,
+  benefitsRoutes.create
+);
+router.put(
+  "/:id",
+  authenticate,
+  benefitsValidation.update,
+  benefitsRoutes.update
+);
+router.delete(
+  "/:id",
+  authenticate,
+  benefitsValidation.destroy,
+  benefitsRoutes.destroy
+);
+
 router.get(
   "/favourites",
   (req, res, next) => {
@@ -30,26 +50,6 @@ router.put(
   authenticate,
   benefitsValidation.unfavourite,
   benefitsRoutes.unfavourite
-);
-
-router.get("/", authenticate, benefitsValidation.index, benefitsRoutes.index);
-router.post(
-  "/",
-  authenticate,
-  benefitsValidation.create,
-  benefitsRoutes.create
-);
-router.put(
-  "/:id",
-  authenticate,
-  benefitsValidation.update,
-  benefitsRoutes.update
-);
-router.delete(
-  "/:id",
-  authenticate,
-  benefitsValidation.destroy,
-  benefitsRoutes.destroy
 );
 
 export default router;
