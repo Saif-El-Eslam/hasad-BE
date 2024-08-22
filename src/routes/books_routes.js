@@ -1,7 +1,7 @@
 import express from "express";
 import { authenticate } from "../middlewares/authMiddleware.js";
 import booksRoutes from "../controllers/books_controller.js";
-import BenefitsRoutes, { FavRouter } from "./benefits_routes.js";
+import BenefitsRoutes from "./benefits_routes.js";
 import booksValidation from "../validations/books_validation.js";
 
 const router = express.Router({ mergeParams: true }); // Allows access to params from the parent route
@@ -18,6 +18,6 @@ router.delete(
 
 router.use("/:bookId/benefits", authenticate, BenefitsRoutes);
 
-router.use("/benefits", authenticate, FavRouter);
+router.use("/benefits", authenticate, BenefitsRoutes);
 
 export default router;

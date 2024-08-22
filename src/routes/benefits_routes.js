@@ -4,7 +4,7 @@ import benefitsRoutes from "../controllers/benefits_controller.js";
 import benefitsValidation from "../validations/benefits_validation.js";
 
 const router = express.Router({ mergeParams: true });
-const FavRouter = express.Router({ mergeParams: true });
+const router0 = express.Router({ mergeParams: true });
 
 router.get("/", authenticate, benefitsValidation.index, benefitsRoutes.index);
 router.post(
@@ -40,7 +40,7 @@ router.put(
   benefitsRoutes.unfavourite
 );
 
-FavRouter.get(
+router.get(
   "/favourites",
   authenticate,
   benefitsValidation.favourites,
@@ -48,4 +48,3 @@ FavRouter.get(
 );
 
 export default router;
-export { FavRouter };
