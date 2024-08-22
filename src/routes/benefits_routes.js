@@ -42,6 +42,7 @@ router.put(
 
 router.get(
   "/favourites",
+  () => {},
   authenticate,
   benefitsValidation.favourites,
   benefitsRoutes.favourites
