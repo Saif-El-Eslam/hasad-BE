@@ -71,7 +71,6 @@ const update = async (req, res) => {
     });
 };
 
-// with the validate_folder_book middleware
 const destroy = async (req, res) => {
   const validation_result = validationResult(req);
   if (!validation_result.isEmpty()) {

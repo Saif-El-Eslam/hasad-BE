@@ -22,7 +22,7 @@ const benefitSchema = new mongoose.Schema(
     book: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Book",
-      required: false,
+      required: true,
     },
     color: {
       type: String,
@@ -34,6 +34,24 @@ const benefitSchema = new mongoose.Schema(
       type: Number,
       required: false,
     },
+    favourated: {
+      type: Boolean,
+      default: false,
+      required: true,
+    },
   },
   { timestamps: true }
 );
+
+benefitSchema.virtual("favourited", {
+  ref: "Favourite",
+  localField: "_id",
+  foreignField: "benefit",
+  justOne: true,
+  count: true,
+});
+
+benefitSchema.set("toObject", { virtuals: true });
+benefitSchema.set("toJSON", { virtuals: true });
+
+export default mongoose.model("Benefit", benefitSchema);

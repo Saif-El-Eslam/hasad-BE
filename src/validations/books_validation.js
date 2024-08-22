@@ -1,5 +1,4 @@
-import { body } from "express-validator";
-import { param } from "express-validator";
+import { body, param } from "express-validator";
 import booksService from "../services/books_service.js";
 import foldersService from "../services/folders_service.js";
 

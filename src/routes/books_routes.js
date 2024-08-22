@@ -1,6 +1,7 @@
 import express from "express";
 import { authenticate } from "../middlewares/authMiddleware.js";
 import booksRoutes from "../controllers/books_controller.js";
+import BenefitsRoutes from "./benefits_routes.js";
 import booksValidation from "../validations/books_validation.js";
 
 const router = express.Router({ mergeParams: true }); // Allows access to params from the parent route
@@ -14,5 +15,18 @@ router.delete(
   booksValidation.destroy,
   booksRoutes.destroy
 );
+
+router.use(
+  "/benefits",
+  authenticate,
+  (req, res, next) => {
+    if (req.params.bookId) {
+      return next("route");
+    }
+    next();
+  },
+  BenefitsRoutes
+);
+router.use("/:bookId/benefits", authenticate, BenefitsRoutes);
 
 export default router;

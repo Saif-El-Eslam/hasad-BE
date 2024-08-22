@@ -44,6 +44,20 @@ const updateBook = async (id, book) => {
   }
 };
 
+// change the number of benefits in the book
+const changeNumOfBenefits = async (id, numOfBenefits) => {
+  try {
+    const updatedBook = await Book.findByIdAndUpdate(
+      id,
+      { $inc: { numOfBenefits: numOfBenefits } },
+      { new: true }
+    );
+    return updatedBook;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
 // delete a book
 const deleteBook = async (id) => {
   try {
@@ -59,5 +73,6 @@ export default {
   getBooks,
   getBookById,
   updateBook,
+  changeNumOfBenefits,
   deleteBook,
 };
