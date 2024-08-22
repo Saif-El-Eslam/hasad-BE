@@ -25,19 +25,6 @@ router.delete(
   benefitsRoutes.destroy
 );
 
-router.get(
-  "/favourites",
-  (req, res, next) => {
-    if (req.params.bookId) {
-      return next("route");
-    }
-    next();
-  },
-  authenticate,
-  benefitsValidation.favourites,
-  benefitsRoutes.favourites
-);
-
 router.put(
   "/:id/favourite",
   authenticate,
@@ -50,6 +37,19 @@ router.put(
   authenticate,
   benefitsValidation.unfavourite,
   benefitsRoutes.unfavourite
+);
+
+router.get(
+  "/favourites",
+  (req, res, next) => {
+    if (req.params.bookId) {
+      return next("route");
+    }
+    next();
+  },
+  authenticate,
+  benefitsValidation.favourites,
+  benefitsRoutes.favourites
 );
 
 export default router;
