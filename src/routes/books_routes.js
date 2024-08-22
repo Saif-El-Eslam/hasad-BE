@@ -16,8 +16,8 @@ router.delete(
   booksRoutes.destroy
 );
 
-router.use("/:bookId/benefits", authenticate, BenefitsRoutes);
-
 router.use("/benefits", authenticate, BenefitsRoutes);
+
+router.use("/:bookId/benefits", authenticate, BenefitsRoutes);
 
 export default router;

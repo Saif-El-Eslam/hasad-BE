@@ -42,6 +42,12 @@ router.put(
 
 router.get(
   "/favourites",
+  (req, res, next) => {
+    if (req.params.bookId) {
+      return next("route");
+    }
+    next();
+  },
   authenticate,
   benefitsValidation.favourites,
   benefitsRoutes.favourites

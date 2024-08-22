@@ -11,10 +11,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use((req, res, next) => {
   console.log(
-    `Method: ${req.method}`,
-    `URL: ${req.url}`,
-    `Body: ${JSON.stringify(req.body)}`,
-    `Params: ${JSON.stringify(req.params)}`
+    `Method: ${req.method} --`,
+    `URL: ${req.url} --`,
+    `Body: ${JSON.stringify(req.body)} --`,
+    `Params: ${JSON.stringify(req.params)} --`
   );
 
   next();
