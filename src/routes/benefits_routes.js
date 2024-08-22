@@ -42,11 +42,6 @@ router.put(
 
 router.get(
   "/favourites",
-  (req, res, next) => {
-    console.log("Middleware for /favourites");
-
-    next();
-  },
   authenticate,
   benefitsValidation.favourites,
   benefitsRoutes.favourites

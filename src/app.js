@@ -13,7 +13,8 @@ app.use((req, res, next) => {
   console.log(
     `Method: ${req.method}`,
     `URL: ${req.url}`,
-    `Body: ${JSON.stringify(req.body)}`
+    `Body: ${JSON.stringify(req.body)}`,
+    `Params: ${JSON.stringify(req.params)}`
   );
 
   next();
