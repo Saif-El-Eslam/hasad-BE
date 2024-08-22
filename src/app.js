@@ -8,6 +8,16 @@ const app = express();
 
 // Middleware
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use((req, res, next) => {
+  console.log(
+    `Method: ${req.method}`,
+    `URL: ${req.url}`,
+    `Body: ${JSON.stringify(req.body)}`
+  );
+
+  next();
+}); // Custom middleware
 
 // Add routes with /api prefix
 app.use("/api/auth", auth_routes);
