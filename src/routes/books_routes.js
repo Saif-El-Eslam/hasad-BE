@@ -16,7 +16,17 @@ router.delete(
   booksRoutes.destroy
 );
 
-router.use("/:bookId/benefits", authenticate, BenefitsRoutes);
+router.use(
+  "/:bookId/benefits",
+  (req, res, next) => {
+    if (!req.params.bookId) {
+      return next("route");
+    }
+    next();
+  },
+  authenticate,
+  BenefitsRoutes
+);
 
 router.use(
   "/benefits",
