@@ -14,8 +14,8 @@ app.use(express.urlencoded({ extended: true }));
 config.environment === "development" &&
   app.use((req, res, next) => {
     console.log(
-      `Method: ${req.method} --`,
-      `URL: ${req.url} --`,
+      `Method: { ${req.method} } ||`,
+      `URL: { ${req.url} } ||`,
       `Body: ${JSON.stringify(req.body)}`
     );
 
