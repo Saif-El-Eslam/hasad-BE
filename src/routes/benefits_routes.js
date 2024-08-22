@@ -7,12 +7,12 @@ const router = express.Router({ mergeParams: true });
 
 router.get(
   "/favourites",
-  // (req, res, next) => {
-  //   if (req.params.bookId) {
-  //     return next("route");
-  //   }
-  //   next();
-  // },
+  (req, res, next) => {
+    if (req.params.bookId) {
+      return next("route");
+    }
+    next();
+  },
   authenticate,
   benefitsValidation.favourites,
   benefitsRoutes.favourites
