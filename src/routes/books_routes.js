@@ -18,13 +18,13 @@ router.delete(
 
 router.use(
   "/benefits",
-  authenticate,
   (req, res, next) => {
     if (req.params.bookId) {
       return next("route");
     }
     next();
   },
+  authenticate,
   BenefitsRoutes
 );
 router.use("/:bookId/benefits", authenticate, BenefitsRoutes);
