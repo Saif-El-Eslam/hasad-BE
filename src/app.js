@@ -28,4 +28,9 @@ app.use("/api/folders", folders_routes);
 app.use("/api/books", books_routes);
 // app.use("/api/benefits", benefits_routes); // This route is nested in books_routes
 
+// Home Route that returns a meaningful message
+app.get("/", (req, res) => {
+  res.send("Welcome to Hasad API!");
+});
+
 export default app;
