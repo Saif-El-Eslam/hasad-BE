@@ -1,8 +1,10 @@
 import benefitsService from "../services/benefits_service.js";
 import booksService from "../services/books_service.js";
 import { validationResult } from "express-validator";
+import { connectDB } from "../config/db.js"; // Ensure to import connectDB
 
 const index = async (req, res) => {
+  await connectDB();
   const validation_result = validationResult(req);
   if (!validation_result.isEmpty()) {
     return res.status(400).json({ errors: validation_result.errors });
