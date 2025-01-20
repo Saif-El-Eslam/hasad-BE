@@ -3,25 +3,24 @@ import booksService from "../services/books_service.js";
 import { validationResult } from "express-validator";
 
 const index = async (req, res) => {
-  // const validation_result = validationResult(req);
-  // if (!validation_result.isEmpty()) {
-  //   return res.status(400).json({ errors: validation_result.errors });
-  // }
-  // const query = {
-  //   book: req.params.bookId,
-  //   user: req.user_id,
-  // };
-  // benefitsService
-  //   .getBenefits(query)
-  //   .then((benefits) => {
-  //     return res.status(200).json(benefits);
-  //   })
-  //   .catch((error) => {
-  //     return res.send(error.message).status(500);
-  //   });
+  const validation_result = validationResult(req);
+  if (!validation_result.isEmpty()) {
+    return res.status(400).json({ errors: validation_result.errors });
+  }
 
-  console.log("req.params.bookId:", req.params.bookId);
-  return res.status(200).send("NOT IMPLEMENTED");
+  const query = {
+    book: req.params.bookId,
+    user: req.user_id,
+  };
+
+  benefitsService
+    .getBenefits(query)
+    .then((benefits) => {
+      return res.status(200).json(benefits);
+    })
+    .catch((error) => {
+      return res.send(error.message).status(500);
+    });
 };
 
 const create = async (req, res) => {
