@@ -1,19 +1,17 @@
 import booksService from "../services/books_service.js";
 import foldersService from "../services/folders_service.js";
 import { validationResult } from "express-validator";
-import logger from "../utils/logger.js";
 
 const index = async (req, res) => {
-  logger.info("Middleware: index");
   const validation_result = validationResult(req);
   if (!validation_result.isEmpty()) {
     return res.status(400).json({ errors: validation_result.errors });
   }
-  logger.info("Validation result:", validation_result);
+
   const query = {};
   if (req.user_id) query.user = req.user_id;
   if (req.params.folderId) query.folder = req.params.folderId;
-  logger.info("Query:", query);
+
   booksService
     .getBooks(query)
     .then((books) => {
