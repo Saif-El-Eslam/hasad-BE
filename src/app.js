@@ -30,7 +30,7 @@ app.use("/api/books", books_routes);
 
 // Home Route that returns a meaningful message
 app.get("/", (req, res) => {
-  res.send("Welcome to Hasad API!");
+  res.send("ًWelcome to Hasad API!");
 });
 
 export default app;
