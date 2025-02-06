@@ -41,8 +41,30 @@ const login = [
 
 const logout = [];
 
+const verifyUser = [];
+
+const resetPasswordRequest = [];
+
+const resetPassword = [
+  body("password")
+    .notEmpty()
+    .withMessage("Password is required")
+    .isLength({
+      min: 8,
+    })
+    .withMessage("Password must be at least 8 characters"),
+  body("verify_password")
+    .notEmpty()
+    .withMessage("Verify password is required")
+    .equals("password")
+    .withMessage("Passwords do not match"),
+];
+
 export default {
   register,
   login,
   logout,
+  verifyUser,
+  resetPasswordRequest,
+  resetPassword,
 };

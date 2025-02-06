@@ -96,6 +96,98 @@ const verifyUser = async (req, res) => {
   }
 };
 
+const resetPasswordRequest = async (req, res) => {
+  const { email } = req;
+
+  try {
+    const user = await usersService.getUserByEmail(email);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Create OTP for password reset
+    const otpSecret = process.env.OTP_SECRET;
+    totp.options = { digits: 4 };
+    const otp = totp.generate(otpSecret);
+
+    // Save OTP to user
+    await usersService.updateUser(user._id, { verify_otp: otp });
+
+    const subject = "Reset Your Password";
+    const htmlContent = `<!DOCTYPE html>
+          <html>
+            <body style="width:80%; background-color:#f5f5f5; padding:50px; border-radius:20px; margin:auto; font-family:Arial, sans-serif;">
+              <h1 style="text-align:center; color:#2B6EE9;">Reset Your Password</h1>
+              <div style="width:60%; margin:auto; font-size:18px;">
+                <p style="margin-top:50px;">
+                  Hi ${user.first_name} ${user.last_name}, <br/><br/>
+                  We received a request to reset your password for your <strong>Hasad</strong> account.
+                  <br/><br/>
+                  Please use the OTP below to reset your password:
+                </p>
+                <div style="width:fit-content; margin:50px auto;">
+                  <div style="padding:10px; width:150px; background-color:#f5f5f5; color:#2B6EE9; border:solid 2px #2B6EE9; border-radius:5px; font-weight:bold; text-align:center;">
+                    ${otp}
+                  </div>
+                </div>
+                <p>
+                  If you did not request a password reset, please ignore this email or contact our support team.
+                  <br/><br/>
+                  Best regards, <br/>
+                  Hasad Support Team
+                </p>
+              </div>
+            </body>
+          </html>
+        `;
+    await sendTransactionalEmail({
+      user,
+      subject,
+      htmlContent,
+    });
+
+    return res.status(200).json({ message: "Password reset email sent" });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  const validation_result = validationResult(req);
+  if (!validation_result.isEmpty()) {
+    return res.status(400).json({ errors: validation_result.errors });
+  }
+
+  const { otp, password, verify_password } = req.body;
+  const { email } = req;
+
+  try {
+    // Check if user exists
+    const user = await usersService.getUserByEmail(email);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Validate OTP
+    if (user.verify_otp !== otp) {
+      return res.status(400).json({ message: "Invalid OTP" });
+    }
+
+    // Hash new password
+    const password_hash = await bcrypt.hash(password, 10);
+
+    // Update user password and remove OTP
+    await usersService.updateUser(user._id, {
+      password_hash,
+      verify_otp: null,
+    });
+
+    return res.status(200).json({ message: "Password reset successfully" });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
 const login = async (req, res) => {
   const validation_result = validationResult(req);
   if (!validation_result.isEmpty()) {
@@ -149,4 +241,6 @@ export default {
   login,
   logout,
   verifyUser,
+  resetPassword,
+  resetPasswordRequest,
 };
