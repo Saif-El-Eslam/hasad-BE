@@ -30,7 +30,28 @@ const register = [
     .withMessage("Passwords do not match"),
 ];
 
-const uploadProfilePicture = [];
+const uploadProfilePicture = [
+  body("image").custom((value, { req }) => {
+    // Check if a file was uploaded
+    if (!req.file) {
+      throw new Error("Image is required");
+    }
+
+    // Check if the file is an image (e.g., JPEG, PNG)
+    const allowedMimeTypes = ["image/jpeg", "image/png"];
+    if (!allowedMimeTypes.includes(req.file.mimetype)) {
+      throw new Error("Invalid file type. Only JPEG, or PNG are allowed.");
+    }
+
+    // Check the file size (e.g., limit to 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (req.file.size > maxSize) {
+      throw new Error("File size exceeds 5MB");
+    }
+
+    return true; // File is valid
+  }),
+];
 
 const deleteProfilePicture = [];
 

@@ -46,17 +46,6 @@ const uploadProfilePicture = async (req, res) => {
     return res.status(400).json({ errors: validation_result.errors });
   }
   try {
-    if (!req.file) {
-      return res.status(400).json({ message: "Image file is required!" });
-    }
-
-    const validMimeTypes = ["image/jpeg", "image/png"];
-    if (!validMimeTypes.includes(req.file.mimetype)) {
-      return res.status(400).json({
-        message: "Invalid file type. Only JPG, and PNG files are allowed.",
-      });
-    }
-
     const userId = req.user_id;
     const user = await usersService.getUserById(userId);
     if (!user) {

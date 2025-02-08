@@ -36,8 +36,8 @@ router.post(
 router.post(
   "/profile-picture",
   authenticate,
-  authValidation.uploadProfilePicture,
   uploadSingleMiddleware,
+  authValidation.uploadProfilePicture,
   authRoutes.uploadProfilePicture
 );
 
