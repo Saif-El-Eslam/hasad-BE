@@ -19,7 +19,11 @@ export const uploadSingleFileToCloudinary = async (file, folder) => {
       .resize({ width: 800 }) // Resize width to 800px
       .toFormat("jpeg") // Convert to JPEG for better compression
       .jpeg({ quality: 80 }) // Adjust quality (80% recommended)
-      .toBuffer();
+      .toBuffer()
+      .catch((error) => {
+        console.error("Error compressing image:", error);
+        throw new Error("Image compression failed");
+      });
 
     const b64 = Buffer.from(compressedBuffer.buffer).toString("base64");
     let dataURI = `data:image/jpeg;base64,${b64}`;
