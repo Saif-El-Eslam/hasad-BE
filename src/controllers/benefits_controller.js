@@ -35,6 +35,7 @@ const create = async (req, res) => {
     page_number: req.body.page_number,
     Image_url: req.body.Image_url,
     color: req.body.color,
+    border_color: req.body.border_color,
     book: req.params.bookId,
     user: req.user_id,
   };
@@ -63,6 +64,7 @@ const update = async (req, res) => {
     page_number: req.body.page_number,
     Image_url: req.body.Image_url,
     color: req.body.color,
+    border_color: req.body.border_color,
     book: req.params.bookId,
     user: req.user_id,
   };
