@@ -5,6 +5,10 @@ import jwt from "jsonwebtoken";
 import { config } from "../config/index.js";
 import { totp } from "otplib";
 import sendTransactionalEmail from "../config/mailer.js";
+import {
+  uploadSingleFileToCloudinary,
+  deleteFilesFromCloudinary,
+} from "../middlewares/imageUploaderMiddleware.js";
 
 const register = async (req, res) => {
   const validation_result = validationResult(req);
@@ -36,7 +40,100 @@ const register = async (req, res) => {
     });
 };
 
-const verifyUser = async (req, res) => {
+const uploadProfilePicture = async (req, res) => {
+  const validation_result = validationResult(req);
+  if (!validation_result.isEmpty()) {
+    return res.status(400).json({ errors: validation_result.errors });
+  }
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "Image file is required!" });
+    }
+
+    const validMimeTypes = ["image/jpeg", "image/png"];
+    if (!validMimeTypes.includes(req.file.mimetype)) {
+      return res.status(400).json({
+        message: "Invalid file type. Only JPG, and PNG files are allowed.",
+      });
+    }
+
+    const userId = req.user_id;
+    const user = await usersService.getUserById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (user.img_url) {
+      const imageUrl = user.img_url;
+      await deleteFilesFromCloudinary([imageUrl]);
+
+      user.img_url = null;
+    }
+
+    // Upload the file to Cloudinary
+    const folder = "profiles";
+    const imageUrl = await uploadSingleFileToCloudinary(req.file, folder);
+
+    user.img_url = imageUrl;
+    await user.save();
+
+    // Respond with the updated profile picture URL
+    return res.status(200).json({
+      message: "Profile picture uploaded successfully",
+      profilePicture: imageUrl,
+    });
+  } catch (error) {
+    console.error("Error uploading profile picture:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const deleteProfilePicture = async (req, res) => {
+  const validation_result = validationResult(req);
+  if (!validation_result.isEmpty()) {
+    return res.status(400).json({ errors: validation_result.errors });
+  }
+  try {
+    const userId = req.user_id;
+    const user = await usersService.getUserById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (!user.img_url) {
+      return res.status(400).json({ message: "No profile picture to delete" });
+    }
+
+    const imageUrl = user.img_url;
+    const deleteResponse = await deleteFilesFromCloudinary([imageUrl]);
+
+    if (deleteResponse.some((result) => result.result === "Failed to delete")) {
+      return res
+        .status(500)
+        .json({ message: "Failed to delete the image from Cloudinary" });
+    }
+
+    user.img_url = null;
+    await user.save();
+
+    // Send success response
+    return res
+      .status(200)
+      .json({ message: "Profile picture deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting profile picture:", error);
+    return res.status(500).json({
+      message: "An error occurred while deleting the profile picture",
+    });
+  }
+};
+
+const verifyUserRequest = async (req, res) => {
+  const validation_result = validationResult(req);
+  if (!validation_result.isEmpty()) {
+    return res.status(400).json({ errors: validation_result.errors });
+  }
   const { user_id, email } = req;
 
   try {
@@ -97,6 +194,10 @@ const verifyUser = async (req, res) => {
 };
 
 const verifyUser = async (req, res) => {
+  const validation_result = validationResult(req);
+  if (!validation_result.isEmpty()) {
+    return res.status(400).json({ errors: validation_result.errors });
+  }
   const { verify_otp } = req.body;
 
   try {
@@ -124,6 +225,11 @@ const verifyUser = async (req, res) => {
 };
 
 const resetPasswordRequest = async (req, res) => {
+  const validation_result = validationResult(req);
+  if (!validation_result.isEmpty()) {
+    return res.status(400).json({ errors: validation_result.errors });
+  }
+
   const { email } = req;
 
   try {
@@ -265,6 +371,8 @@ const logout = async (req, res) => {
 
 export default {
   register,
+  uploadProfilePicture,
+  deleteProfilePicture,
   login,
   logout,
   verifyUser,

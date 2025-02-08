@@ -30,6 +30,10 @@ const register = [
     .withMessage("Passwords do not match"),
 ];
 
+const uploadProfilePicture = [];
+
+const deleteProfilePicture = [];
+
 const login = [
   body("email")
     .notEmpty()
@@ -70,6 +74,8 @@ const resetPassword = [
 
 export default {
   register,
+  uploadProfilePicture,
+  deleteProfilePicture,
   login,
   logout,
   verifyUserRequest,

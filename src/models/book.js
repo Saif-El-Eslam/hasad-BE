@@ -25,6 +25,10 @@ const bookSchema = new mongoose.Schema(
       default: 0,
       required: false,
     },
+    img_url: {
+      type: String,
+      required: false,
+    },
   },
   { timestamps: true }
 );
