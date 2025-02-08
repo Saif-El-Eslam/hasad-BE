@@ -30,6 +30,10 @@ const benefitSchema = new mongoose.Schema(
       default: "#DBE9FE",
       required: false,
     },
+    border_color: {
+      type: String,
+      required: false,
+    },
     page_number: {
       type: Number,
       required: false,
