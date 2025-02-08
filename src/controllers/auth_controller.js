@@ -96,6 +96,33 @@ const verifyUser = async (req, res) => {
   }
 };
 
+const verifyUser = async (req, res) => {
+  const { verify_otp } = req.body;
+
+  try {
+    const user = await usersService.getUserById(req.user_id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    if (user.verified) {
+      return res.status(400).json({ message: "User already verified" });
+    }
+
+    if (user.verify_otp !== verify_otp) {
+      return res.status(400).json({ message: "Invalid OTP" });
+    }
+
+    user.verified = true;
+    user.verify_otp = null;
+
+    await user.save();
+
+    return res.status(200).json({ message: "User verified successfully" });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
 const resetPasswordRequest = async (req, res) => {
   const { email } = req;
 
@@ -241,6 +268,7 @@ export default {
   login,
   logout,
   verifyUser,
+  verifyUserRequest,
   resetPassword,
   resetPasswordRequest,
 };

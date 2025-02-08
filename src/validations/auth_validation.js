@@ -41,7 +41,15 @@ const login = [
 
 const logout = [];
 
-const verifyUser = [];
+const verifyUserRequest = [];
+
+const verifyUser = [
+  body("verify_otp")
+    .notEmpty()
+    .withMessage("OTP is required")
+    .isNumeric()
+    .withMessage("OTP must be a number"),
+];
 
 const resetPasswordRequest = [];
 
@@ -64,6 +72,7 @@ export default {
   register,
   login,
   logout,
+  verifyUserRequest,
   verifyUser,
   resetPasswordRequest,
   resetPassword,
