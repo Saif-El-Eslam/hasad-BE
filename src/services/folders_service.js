@@ -46,9 +46,9 @@ const updateFolder = async (id, folder) => {
 // increase the number of books in a folder
 const changeNumOfBooks = async (id, num) => {
   try {
-    const folder = await Folder.findByIdAndUpdate(
+    const updatedFolder = await Folder.findByIdAndUpdate(
       id,
-      { $inc: { numOfBooks: num } },
+      { $inc: { num_of_books: num } },
       { new: true }
     );
     return updatedFolder;
