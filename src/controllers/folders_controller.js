@@ -25,26 +25,26 @@ const create = async (req, res) => {
     return res.status(400).json({ errors: validation_result.errors });
   }
 
-  const folder = {
-    name: req.body.name,
-    author: req.body.author,
-    user: req.user_id,
-  };
+  try {
+    const folder = {
+      name: req.body.name,
+      author: req.body.author,
+      user: req.user_id,
+    };
 
-  const folderName = "folders";
-  if (req.file) {
-    const imageUrl = await uploadSingleFileToCloudinary(req.file, folderName);
-    folder.img_url = imageUrl;
+    const folderName = "folders";
+    if (req.file) {
+      const imageUrl = await uploadSingleFileToCloudinary(req.file, folderName);
+      folder.img_url = imageUrl;
+    }
+
+    const newFolder = await foldersService.createFolder(folder);
+
+    return res.status(201).json(newFolder);
+  } catch (error) {
+    console.log(error);
+    return res.send(error.message).status(500);
   }
-
-  foldersService
-    .createFolder(folder)
-    .then((folder) => {
-      return res.status(201).json(folder);
-    })
-    .catch((error) => {
-      return res.send(error.message).status(500);
-    });
 };
 
 const update = async (req, res) => {
@@ -89,14 +89,16 @@ const destroy = async (req, res) => {
     return res.status(400).json({ errors: validation_result.errors });
   }
 
-  foldersService
-    .deleteFolder(req.params.id)
-    .then((folder) => {
-      return res.status(200).json(folder);
-    })
-    .catch((error) => {
-      return res.send(error.message).status(500);
-    });
+  try {
+    const folder = await foldersService.deleteFolder(req.params.id);
+    if (!folder) return res.status(404).json({ message: "Folder not found" });
+
+    if (folder.img_url) await deleteFilesFromCloudinary([folder.img_url]);
+
+    return res.status(200).json({ message: "Folder deleted successfully" });
+  } catch (error) {
+    return res.send(error.message).status(500);
+  }
 };
 
 export default {

@@ -60,11 +60,49 @@ const create = [
     .isMongoId()
     .withMessage("Folder ID must be a valid Mongo ID")
     .custom(isFolderExists),
+  body("image").custom((value, { req }) => {
+    if (!req.file) {
+      return true;
+    }
+
+    // Check if the file is an image (e.g., JPEG, PNG)
+    const allowedMimeTypes = ["image/jpeg", "image/png"];
+    if (!allowedMimeTypes.includes(req.file.mimetype)) {
+      throw new Error("Invalid file type. Only JPEG, or PNG are allowed.");
+    }
+
+    // Check the file size (e.g., limit to 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (req.file.size > maxSize) {
+      throw new Error("File size exceeds 5MB");
+    }
+
+    return true; // File is valid
+  }),
 ];
 
 const update = [
   body("title").optional().isString().withMessage("Title must be a string"),
   body("author").optional().isString().withMessage("Author must be a string"),
+  body("image").custom((value, { req }) => {
+    if (!req.file) {
+      return true;
+    }
+
+    // Check if the file is an image (e.g., JPEG, PNG)
+    const allowedMimeTypes = ["image/jpeg", "image/png"];
+    if (!allowedMimeTypes.includes(req.file.mimetype)) {
+      throw new Error("Invalid file type. Only JPEG, or PNG are allowed.");
+    }
+
+    // Check the file size (e.g., limit to 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (req.file.size > maxSize) {
+      throw new Error("File size exceeds 5MB");
+    }
+
+    return true; // File is valid
+  }),
   param("folderId")
     .optional()
     .isMongoId()

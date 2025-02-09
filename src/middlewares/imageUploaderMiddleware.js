@@ -36,7 +36,7 @@ export const uploadSingleFileToCloudinary = async (file, folder) => {
     return response.secure_url;
   } catch (error) {
     console.error("Error uploading file:", error);
-    throw new Error("Upload failed");
+    throw error.status ? error : { status: 500, message: "Upload failed" };
   }
 };
 
