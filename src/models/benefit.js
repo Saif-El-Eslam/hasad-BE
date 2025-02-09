@@ -1,4 +1,9 @@
 import mongoose from "mongoose";
+import {
+  benefitColors,
+  benefitBorderColors,
+  benefitColorBorderMap,
+} from "../config/colors.js";
 
 const benefitSchema = new mongoose.Schema(
   {
@@ -26,12 +31,14 @@ const benefitSchema = new mongoose.Schema(
     },
     color: {
       type: String,
-      enum: ["#DBE9FE", "#D7F6E5", "#F7DEE4", "#EFE9F5", "#F7F7D3"],
+      enum: benefitColors,
       default: "#DBE9FE",
       required: false,
     },
     border_color: {
       type: String,
+      enum: benefitBorderColors,
+      default: benefitColorBorderMap.get("#DBE9FE"),
       required: false,
     },
     page_number: {

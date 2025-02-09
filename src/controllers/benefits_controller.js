@@ -1,6 +1,7 @@
 import benefitsService from "../services/benefits_service.js";
 import booksService from "../services/books_service.js";
 import { validationResult } from "express-validator";
+import { benefitColorBorderMap } from "../config/colors.js";
 
 const index = async (req, res) => {
   const validation_result = validationResult(req);
@@ -35,7 +36,7 @@ const create = async (req, res) => {
     page_number: req.body.page_number,
     Image_url: req.body.Image_url,
     color: req.body.color,
-    border_color: req.body.border_color,
+    border_color: benefitColorBorderMap.get(req.body.color),
     book: req.params.bookId,
     user: req.user_id,
   };
@@ -64,7 +65,7 @@ const update = async (req, res) => {
     page_number: req.body.page_number,
     Image_url: req.body.Image_url,
     color: req.body.color,
-    border_color: req.body.border_color,
+    border_color: benefitColorBorderMap.get(req.body.color),
     book: req.params.bookId,
     user: req.user_id,
   };

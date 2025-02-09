@@ -1,6 +1,7 @@
 import { body, param } from "express-validator";
 import booksService from "../services/books_service.js";
 import benefitsService from "../services/benefits_service.js";
+import { benefitColors } from "../config/colors.js";
 
 const isBookExists = async (value, { req }) => {
   const book = await booksService.getBookById(value);
@@ -20,7 +21,7 @@ const isBenefitExists = async (value, { req }) => {
 };
 
 const validateColor = (value) => {
-  const colors = ["#DBE9FE", "#D7F6E5", "#F7DEE4", "#EFE9F5", "#F7F7D3"];
+  const colors = benefitColors;
 
   if (!colors.includes(value))
     throw new Error("Color must be one of our predefined colors");
