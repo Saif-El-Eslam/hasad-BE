@@ -49,16 +49,31 @@ const create = [
     .withMessage("Page number is required")
     .isInt()
     .withMessage("Page number must be an integer"),
-  body("Image_url")
-    .optional()
-    .isURL()
-    .withMessage("Image URL must be a valid URL"),
   body("color")
     .optional()
     .isHexColor()
     .withMessage("Color must be a valid hex color")
     .custom(validateColor)
     .withMessage("Color must be one of our predefined colors"),
+  body("image").custom((value, { req }) => {
+    if (!req.file) {
+      return true;
+    }
+
+    // Check if the file is an image (e.g., JPEG, PNG)
+    const allowedMimeTypes = ["image/jpeg", "image/png"];
+    if (!allowedMimeTypes.includes(req.file.mimetype)) {
+      throw new Error("Invalid file type. Only JPEG, or PNG are allowed.");
+    }
+
+    // Check the file size (e.g., limit to 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (req.file.size > maxSize) {
+      throw new Error("File size exceeds 5MB");
+    }
+
+    return true; // File is valid
+  }),
   param("bookId")
     .notEmpty()
     .isMongoId()
@@ -73,16 +88,31 @@ const update = [
     .optional()
     .isInt()
     .withMessage("Page number must be an integer"),
-  body("Image_url")
-    .optional()
-    .isURL()
-    .withMessage("Image URL must be a valid URL"),
   body("color")
     .optional()
     .isHexColor()
     .withMessage("Color must be a valid hex color")
     .custom(validateColor)
     .withMessage("Color must be one of our predefined colors"),
+  body("image").custom((value, { req }) => {
+    if (!req.file) {
+      return true;
+    }
+
+    // Check if the file is an image (e.g., JPEG, PNG)
+    const allowedMimeTypes = ["image/jpeg", "image/png"];
+    if (!allowedMimeTypes.includes(req.file.mimetype)) {
+      throw new Error("Invalid file type. Only JPEG, or PNG are allowed.");
+    }
+
+    // Check the file size (e.g., limit to 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (req.file.size > maxSize) {
+      throw new Error("File size exceeds 5MB");
+    }
+
+    return true; // File is valid
+  }),
   param("bookId")
     .notEmpty()
     .isMongoId()

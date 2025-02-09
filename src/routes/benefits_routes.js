@@ -2,20 +2,22 @@ import express from "express";
 import { authenticate } from "../middlewares/authMiddleware.js";
 import benefitsRoutes from "../controllers/benefits_controller.js";
 import benefitsValidation from "../validations/benefits_validation.js";
+import { uploadSingleMiddleware } from "../middlewares/imageUploaderMiddleware.js";
 
 const router = express.Router({ mergeParams: true });
-const router0 = express.Router({ mergeParams: true });
 
 router.get("/", authenticate, benefitsValidation.index, benefitsRoutes.index);
 router.post(
   "/",
   authenticate,
+  uploadSingleMiddleware,
   benefitsValidation.create,
   benefitsRoutes.create
 );
 router.put(
   "/:id",
   authenticate,
+  uploadSingleMiddleware,
   benefitsValidation.update,
   benefitsRoutes.update
 );

@@ -95,6 +95,8 @@ const destroy = async (req, res) => {
 
     if (folder.img_url) await deleteFilesFromCloudinary([folder.img_url]);
 
+    await folder.deleteOne();
+
     return res.status(200).json({ message: "Folder deleted successfully" });
   } catch (error) {
     return res.send(error.message).status(500);

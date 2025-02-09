@@ -46,14 +46,12 @@ const updateBook = async (id, book) => {
 
 // change the number of benefits in the book
 const changeNumOfBenefits = async (id, numOfBenefits) => {
-  console.log(id, numOfBenefits);
   try {
     const updatedBook = await Book.findByIdAndUpdate(
       id,
       { $inc: { num_of_benefits: numOfBenefits } },
       { new: true }
     );
-    console.log(updatedBook);
     return updatedBook;
   } catch (error) {
     throw new Error(error.message);
