@@ -97,8 +97,6 @@ const destroy = async (req, res) => {
     const folder = await foldersService.deleteFolder(req.params.id);
     if (!folder) return res.status(404).json({ message: "Folder not found" });
 
-    if (folder.img_url) await deleteFilesFromCloudinary([folder.img_url]);
-
     await folder.deleteOne();
 
     return res.status(200).json({ message: "Folder deleted successfully" });

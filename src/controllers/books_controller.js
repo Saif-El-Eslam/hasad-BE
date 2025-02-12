@@ -107,11 +107,6 @@ const destroy = async (req, res) => {
     const book = await booksService.getBookById(req.params.id);
     if (!book) return res.status(404).json({ message: "Book not found" });
 
-    if (book.img_url) await deleteFilesFromCloudinary([book.img_url]);
-    if (book.folder) {
-      foldersService.changeNumOfBooks(book.folder, -1);
-    }
-
     await book.deleteOne();
 
     return res.status(200).json({ message: "Book deleted successfully" });

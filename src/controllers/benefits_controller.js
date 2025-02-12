@@ -75,7 +75,7 @@ const create = async (req, res) => {
 
     const newBenefit = await benefitsService.createBenefit(benefit);
     if (newBenefit.book) {
-      booksService.changeNumOfBenefits(newBenefit.book, 1);
+      await booksService.changeNumOfBenefits(newBenefit.book, 1);
     }
 
     return res.status(200).json(newBenefit);
@@ -134,9 +134,6 @@ const destroy = async (req, res) => {
     if (!benefit) {
       return res.status(404).json({ message: "Benefit not found" });
     }
-
-    if (benefit.img_url) await deleteFilesFromCloudinary([benefit.img_url]);
-    await booksService.changeNumOfBenefits(benefit.book, -1);
 
     await benefit.deleteOne();
 

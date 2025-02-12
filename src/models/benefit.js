@@ -4,6 +4,8 @@ import {
   benefitBorderColors,
   benefitColorBorderMap,
 } from "../config/colors.js";
+import { deleteFilesFromCloudinary } from "../middlewares/imageUploaderMiddleware.js";
+import booksService from "../services/books_service.js";
 
 const benefitSchema = new mongoose.Schema(
   {
@@ -65,4 +67,42 @@ benefitSchema.virtual("favourited", {
 benefitSchema.set("toObject", { virtuals: true });
 benefitSchema.set("toJSON", { virtuals: true });
 
-export default mongoose.model("Benefit", benefitSchema);
+benefitSchema.pre("deleteMany", async function (next) {
+  const query = this.getQuery(); // This gets the query object
+  try {
+    // Find the documents that will be deleted using the query
+    const benefitsToDelete = await Benefit.find(query);
+
+    for (const benefit of benefitsToDelete) {
+      deleteCallback(benefit);
+    }
+
+    // Proceed with the deleteMany operation
+    next();
+  } catch (error) {
+    console.error("Error in Benefit pre-deleteMany hook:", error.message);
+    next(error); // Pass the error to next middleware
+  }
+});
+
+benefitSchema.pre("deleteOne", async function (next) {
+  const benefit = await Benefit.findOne(this.getQuery()); // This gets the query object
+  deleteCallback(benefit);
+
+  next();
+});
+
+const deleteCallback = async (benefit) => {
+  try {
+    if (benefit.img_url) await deleteFilesFromCloudinary([benefit.img_url]);
+    await booksService.changeNumOfBenefits(benefit.book, -1);
+  } catch (error) {
+    console.error(
+      "Error during Benefit post-delete middleware:",
+      error.message
+    );
+  }
+};
+
+const Benefit = mongoose.model("Benefit", benefitSchema);
+export default Benefit;
