@@ -33,11 +33,8 @@ export const uploadSingleFileToCloudinary = async (file, folder) => {
       timeout: 60000, // Increase timeout to 60 seconds
     });
 
-    console.log("Response:", response);
-
     return response.secure_url;
   } catch (error) {
-    console.log("Error", error);
     console.error("Error uploading file:", error);
     throw error.status ? error : { status: 500, message: "Upload failed" };
   }

@@ -28,6 +28,24 @@ const index = async (req, res) => {
     });
 };
 
+const show = async (req, res) => {
+  const validation_result = validationResult(req);
+  if (!validation_result.isEmpty()) {
+    return res.status(400).json({ errors: validation_result.errors });
+  }
+
+  try {
+    const benefit = await benefitsService.getBenefitById(req.params.id);
+    if (!benefit) {
+      return res.status(404).json({ message: "Benefit not found" });
+    }
+
+    return res.status(200).json(benefit);
+  } catch (error) {
+    return res.send(error.message).status(500);
+  }
+};
+
 const create = async (req, res) => {
   const validation_result = validationResult(req);
   if (!validation_result.isEmpty()) {
@@ -179,6 +197,7 @@ const unfavourite = async (req, res) => {
 
 export default {
   index,
+  show,
   create,
   update,
   destroy,

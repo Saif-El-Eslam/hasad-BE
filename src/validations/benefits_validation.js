@@ -37,6 +37,19 @@ const index = [
     .custom(isBookExists),
 ];
 
+const show = [
+  param("bookId")
+    .notEmpty()
+    .isMongoId()
+    .withMessage("Invalid book id")
+    .custom(isBookExists),
+  param("id")
+    .notEmpty()
+    .isMongoId()
+    .withMessage("Invalid benefit id")
+    .custom(isBenefitExists),
+];
+
 const create = [
   body("name")
     .notEmpty()
@@ -168,6 +181,7 @@ const favourites = [];
 
 export default {
   index,
+  show,
   create,
   update,
   destroy,

@@ -7,6 +7,7 @@ import { uploadSingleMiddleware } from "../middlewares/imageUploaderMiddleware.j
 const router = express.Router({ mergeParams: true });
 
 router.get("/", authenticate, benefitsValidation.index, benefitsRoutes.index);
+router.get("/:id", authenticate, benefitsValidation.show, benefitsRoutes.show);
 router.post(
   "/",
   authenticate,
