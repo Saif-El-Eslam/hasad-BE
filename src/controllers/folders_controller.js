@@ -4,13 +4,17 @@ import {
   uploadSingleFileToCloudinary,
   deleteFilesFromCloudinary,
 } from "../middlewares/imageUploaderMiddleware.js";
+import { getSortQuery } from "../utils/sort.js";
 
 const index = async (req, res) => {
   const query = {};
   if (req.user_id) query.user = req.user_id;
 
+  const { sortBy, sortDirection } = req.query;
+  const sortQuery = getSortQuery(sortBy, sortDirection);
+
   foldersService
-    .getFolders(query)
+    .getFolders(query, sortQuery)
     .then((folders) => {
       return res.status(200).json(folders);
     })

@@ -12,10 +12,10 @@ const createBook = async (book) => {
 };
 
 // get all books
-const getBooks = async (query = {}) => {
+const getBooks = async (query = {}, sort = { createdAt: -1 }) => {
   try {
     // get books by query
-    const books = await Book.find(query);
+    const books = await Book.find(query).sort(sort);
     return books;
   } catch (error) {
     throw new Error(error.message);

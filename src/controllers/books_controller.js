@@ -5,6 +5,7 @@ import {
   uploadSingleFileToCloudinary,
   deleteFilesFromCloudinary,
 } from "../middlewares/imageUploaderMiddleware.js";
+import { getSortQuery } from "../utils/sort.js";
 
 const index = async (req, res) => {
   const validation_result = validationResult(req);
@@ -17,8 +18,11 @@ const index = async (req, res) => {
   if (req.params.folderId) query.folder = req.params.folderId;
   else query.folder = null;
 
+  const { sortBy, sortDirection } = req.query;
+  const sortQuery = getSortQuery(sortBy, sortDirection);
+
   booksService
-    .getBooks(query)
+    .getBooks(query, sortQuery)
     .then((books) => {
       return res.status(200).json(books);
     })

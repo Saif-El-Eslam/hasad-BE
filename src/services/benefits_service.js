@@ -12,10 +12,10 @@ const createBenefit = async (benefit) => {
 };
 
 // get all benefits
-const getBenefits = async (query = {}) => {
+const getBenefits = async (query = {}, sort = { createdAt: -1 }) => {
   try {
     // get benefits by query
-    const benefits = await Benefit.find(query);
+    const benefits = await Benefit.find(query).sort(sort);
     return benefits;
   } catch (error) {
     throw new Error(error.message);

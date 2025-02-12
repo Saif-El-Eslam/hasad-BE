@@ -7,7 +7,18 @@ import { uploadSingleMiddleware } from "../middlewares/imageUploaderMiddleware.j
 const router = express.Router({ mergeParams: true });
 
 router.get("/", authenticate, benefitsValidation.index, benefitsRoutes.index);
-router.get("/:id", authenticate, benefitsValidation.show, benefitsRoutes.show);
+router.get(
+  "/:id",
+  (req, res, next) => {
+    if (req.params.id === "favourites") {
+      return next("route");
+    }
+    next();
+  },
+  authenticate,
+  benefitsValidation.show,
+  benefitsRoutes.show
+);
 router.post(
   "/",
   authenticate,
@@ -45,12 +56,7 @@ router.put(
 
 router.get(
   "/favourites",
-  (req, res, next) => {
-    if (req.params.bookId) {
-      return next("route");
-    }
-    next();
-  },
+
   authenticate,
   benefitsValidation.favourites,
   benefitsRoutes.favourites

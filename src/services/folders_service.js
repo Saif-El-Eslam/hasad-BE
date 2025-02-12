@@ -12,9 +12,9 @@ const createFolder = async (folder) => {
 };
 
 // get all folders
-const getFolders = async (query = {}) => {
+const getFolders = async (query = {}, sort = { createdAt: -1 }) => {
   try {
-    const folders = await Folder.find(query);
+    const folders = await Folder.find(query).sort(sort);
     return folders;
   } catch (error) {
     throw new Error(error.message);

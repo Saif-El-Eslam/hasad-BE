@@ -6,6 +6,7 @@ import {
   uploadSingleFileToCloudinary,
   deleteFilesFromCloudinary,
 } from "../middlewares/imageUploaderMiddleware.js";
+import { getSortQuery } from "../utils/sort.js";
 
 const index = async (req, res) => {
   const validation_result = validationResult(req);
@@ -18,8 +19,11 @@ const index = async (req, res) => {
     user: req.user_id,
   };
 
+  const { sortBy, sortDirection } = req.query;
+  const sortQuery = getSortQuery(sortBy, sortDirection);
+
   benefitsService
-    .getBenefits(query)
+    .getBenefits(query, sortQuery)
     .then((benefits) => {
       return res.status(200).json(benefits);
     })
@@ -152,9 +156,13 @@ const favourites = async (req, res) => {
     user: req.user_id,
     favourated: true,
   };
+  if (req.params.bookId) query.book = req.params.bookId;
+
+  const { sortBy, sortDirection } = req.query;
+  const sortQuery = getSortQuery(sortBy, sortDirection);
 
   benefitsService
-    .getBenefits(query)
+    .getBenefits(query, sortQuery)
     .then((benefits) => {
       return res.status(200).json(benefits);
     })
