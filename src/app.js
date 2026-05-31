@@ -4,6 +4,7 @@ import folders_routes from "./routes/folders_routes.js";
 import books_routes from "./routes/books_routes.js";
 // import benefits_routes from "./routes/benefits_routes.js";
 import { config } from "./config/index.js";
+import { connectDB } from "./config/db.js";
 
 const app = express();
 
@@ -11,12 +12,22 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Ensure DB is connected before every request (safe for both serverless and persistent)
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    res.status(503).json({ message: "Database unavailable" });
+  }
+});
+
 config.environment === "development" &&
   app.use((req, res, next) => {
     console.log(
       `Method: { ${req.method} } ||`,
       `URL: { ${req.url} } ||`,
-      `Body: ${JSON.stringify(req.body)}`
+      `Body: ${JSON.stringify(req.body)}`,
     );
 
     next();
