@@ -29,7 +29,7 @@ export const uploadSingleFileToCloudinary = async (file, folder) => {
     let dataURI = `data:image/jpeg;base64,${b64}`;
 
     const response = await cloudinary.uploader.upload(dataURI, {
-      folder, // Upload to the specified folder
+      folder: `hasad/${folder}`,
       timeout: 60000, // Increase timeout to 60 seconds
     });
 
@@ -51,7 +51,7 @@ export const uploadFilesToCloudinary = async (files, folder) => {
   }
 
   const uploadPromises = files.map((file) =>
-    uploadSingleFileToCloudinary(file, folder)
+    uploadSingleFileToCloudinary(file, folder),
   );
   return Promise.all(uploadPromises);
 };
@@ -65,10 +65,14 @@ export const deleteFilesFromCloudinary = async (imageUrls) => {
   const deletePromises = imageUrls.map(async (image) => {
     try {
       const urlParts = image.split("/");
-      const folderName = urlParts[urlParts.length - 2];
-      const publicId = urlParts[urlParts.length - 1].split(".")[0];
+      // Extract full public ID including nested folder (hasad/subfolder/filename)
+      const uploadIndex = urlParts.indexOf("upload");
+      const publicId = urlParts
+        .slice(uploadIndex + 2) // skip 'upload' and version segment
+        .join("/")
+        .replace(/\.[^/.]+$/, "");
 
-      return await cloudinary.uploader.destroy(`${folderName}/${publicId}`);
+      return await cloudinary.uploader.destroy(publicId);
     } catch (error) {
       console.error("Error deleting file:", error);
       return { result: "Failed to delete" };
