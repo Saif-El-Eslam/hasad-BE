@@ -1,72 +1,44 @@
+import { createResource, deleteResource } from "./lifecycle_service.js";
 import Book from "../models/book.js";
 
 // create a new book
-const createBook = async (book) => {
-  try {
-    const newBook = new Book(book);
-    const savedBook = await newBook.save();
-    return savedBook;
-  } catch (error) {
-    throw new Error(error.message);
-  }
-};
+const createBook = (values) => createResource("book", values);
 
 // get all books
 const getBooks = async (query = {}, sort = { createdAt: -1 }) => {
-  try {
-    // get books by query
-    const books = await Book.find(query).sort(sort);
-    return books;
-  } catch (error) {
-    throw new Error(error.message);
-  }
+  // get books by query
+  const books = await Book.find(query).sort(sort);
+  return books;
 };
 
 // get a single book By Id
 const getBookById = async (id) => {
-  try {
-    const book = await Book.findById(id);
-    return book;
-  } catch (error) {
-    throw new Error(error.message);
-  }
+  const book = await Book.findById(id);
+  return book;
 };
 
 // update a book
 const updateBook = async (id, book) => {
-  try {
-    const updatedBook = await Book.findByIdAndUpdate(id, book, {
-      new: true,
-    });
-    return updatedBook;
-  } catch (error) {
-    throw new Error(error.message);
-  }
+  const updatedBook = await Book.findByIdAndUpdate(id, book, {
+    new: true,
+    runValidators: true,
+  });
+  return updatedBook;
 };
 
 // change the number of benefits in the book
 const changeNumOfBenefits = async (id, numOfBenefits) => {
-  try {
-    const updatedBook = await Book.findByIdAndUpdate(
-      id,
-      { $inc: { num_of_benefits: numOfBenefits } },
-      { new: true }
-    );
-    return updatedBook;
-  } catch (error) {
-    throw new Error(error.message);
-  }
+  const updatedBook = await Book.findByIdAndUpdate(
+    id,
+    { $inc: { num_of_benefits: numOfBenefits } },
+    { new: true },
+  );
+  return updatedBook;
 };
 
 // delete a book
-const deleteBook = async (id) => {
-  try {
-    const deletedBook = await Book.findByIdAndDelete(id);
-    return deletedBook;
-  } catch (error) {
-    throw new Error(error.message);
-  }
-};
+const deleteBook = (id, user) =>
+  deleteResource("book", { _id: id, ...(user ? { user } : {}) });
 
 export default {
   createBook,

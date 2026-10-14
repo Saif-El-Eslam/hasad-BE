@@ -15,5 +15,5 @@ export const benefitBorderColors = [
 ];
 
 export const benefitColorBorderMap = new Map(
-  benefitColors.map((color, index) => [color, benefitBorderColors[index]])
+  benefitColors.map((color, index) => [color, benefitBorderColors[index]]),
 );

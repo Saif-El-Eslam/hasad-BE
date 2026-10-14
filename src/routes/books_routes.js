@@ -13,20 +13,20 @@ router.post(
   authenticate,
   uploadSingleMiddleware,
   booksValidation.create,
-  booksRoutes.create
+  booksRoutes.create,
 );
 router.put(
   "/:id",
   authenticate,
   uploadSingleMiddleware,
   booksValidation.update,
-  booksRoutes.update
+  booksRoutes.update,
 );
 router.delete(
   "/:id",
   authenticate,
   booksValidation.destroy,
-  booksRoutes.destroy
+  booksRoutes.destroy,
 );
 
 router.use("/benefits", authenticate, BenefitsRoutes);

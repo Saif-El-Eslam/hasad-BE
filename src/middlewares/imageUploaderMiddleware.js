@@ -10,34 +10,43 @@ cloudinary.config({
 });
 
 const storage = multer.memoryStorage();
-const upload = multer({ storage });
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024, files: 10, fields: 30, parts: 40 },
+  fileFilter: (_req, file, callback) => {
+    if (!["image/jpeg", "image/png"].includes(file.mimetype)) {
+      const error = new Error("Invalid image type");
+      error.status = 400;
+      return callback(error);
+    }
+    callback(null, true);
+  },
+});
 
 // Utility function to upload a single file
 export const uploadSingleFileToCloudinary = async (file, folder) => {
-  try {
-    const compressedBuffer = await sharp(file.buffer)
-      .resize({ width: 800 }) // Resize width to 800px
-      .toFormat("jpeg") // Convert to JPEG for better compression
-      .jpeg({ quality: 80 }) // Adjust quality (80% recommended)
-      .toBuffer()
-      .catch((error) => {
-        console.error("Error compressing image:", error);
-        throw new Error("Image compression failed");
-      });
-
-    const b64 = Buffer.from(compressedBuffer.buffer).toString("base64");
-    let dataURI = `data:image/jpeg;base64,${b64}`;
-
-    const response = await cloudinary.uploader.upload(dataURI, {
-      folder: `hasad/${folder}`,
-      timeout: 60000, // Increase timeout to 60 seconds
+  const compressedBuffer = await sharp(file.buffer, {
+    limitInputPixels: 40 * 1000 * 1000,
+  })
+    .resize({ width: 800 }) // Resize width to 800px
+    .toFormat("jpeg") // Convert to JPEG for better compression
+    .jpeg({ quality: 80 }) // Adjust quality (80% recommended)
+    .toBuffer()
+    .catch((error) => {
+      const invalid = new Error("Image compression failed", { cause: error });
+      invalid.status = 400;
+      throw invalid;
     });
 
-    return response.secure_url;
-  } catch (error) {
-    console.error("Error uploading file:", error);
-    throw error.status ? error : { status: 500, message: "Upload failed" };
-  }
+  const b64 = compressedBuffer.toString("base64");
+  let dataURI = `data:image/jpeg;base64,${b64}`;
+
+  const response = await cloudinary.uploader.upload(dataURI, {
+    folder: `hasad/${folder}`,
+    timeout: 60000, // Increase timeout to 60 seconds
+  });
+
+  return response.secure_url;
 };
 
 // Function to handle multiple file uploads
@@ -59,22 +68,23 @@ export const uploadFilesToCloudinary = async (files, folder) => {
 // Function to delete images from Cloudinary
 export const deleteFilesFromCloudinary = async (imageUrls) => {
   if (!imageUrls || imageUrls.length === 0) {
-    return { result: "No images to delete" };
+    return [];
   }
 
   const deletePromises = imageUrls.map(async (image) => {
     try {
-      const urlParts = image.split("/");
-      // Extract full public ID including nested folder (hasad/subfolder/filename)
-      const uploadIndex = urlParts.indexOf("upload");
-      const publicId = urlParts
-        .slice(uploadIndex + 2) // skip 'upload' and version segment
-        .join("/")
-        .replace(/\.[^/.]+$/, "");
+      const url = new URL(image);
+      if (url.hostname !== "res.cloudinary.com")
+        throw new Error("Invalid asset URL");
+      const prefix = `/${config.cloud_name}/image/upload/`;
+      if (!url.pathname.startsWith(prefix))
+        throw new Error("Invalid asset path");
+      const path = url.pathname.slice(prefix.length).replace(/^v[0-9]+\//, "");
+      if (!path.startsWith("hasad/")) throw new Error("Invalid asset folder");
+      const publicId = decodeURIComponent(path.replace(/\.[^/.]+$/, ""));
 
       return await cloudinary.uploader.destroy(publicId);
     } catch (error) {
-      console.error("Error deleting file:", error);
       return { result: "Failed to delete" };
     }
   });
@@ -83,7 +93,7 @@ export const deleteFilesFromCloudinary = async (imageUrls) => {
 };
 
 // Middleware for uploading multiple files
-export const uploadMultipleMiddleware = upload.array("images");
+export const uploadMultipleMiddleware = upload.array("images", 10);
 
 // Middleware for uploading a single file
 export const uploadSingleMiddleware = upload.single("image");

@@ -8,11 +8,16 @@ if (!cached) {
 }
 
 export const connectDB = async () => {
-  if (cached.conn) return cached.conn;
+  if (cached.conn && mongoose.connection.readyState === 1) return cached.conn;
+  if (mongoose.connection.readyState === 0) {
+    cached.conn = null;
+    cached.promise = null;
+  }
 
   if (!cached.promise) {
     cached.promise = mongoose.connect(config.dbUrl, {
       serverSelectionTimeoutMS: 10000,
+      autoIndex: config.environment !== "production",
       socketTimeoutMS: 45000,
     });
   }

@@ -13,39 +13,39 @@ router.post(
   "/verify-user-request",
   authenticate,
   authValidation.verifyUserRequest,
-  authRoutes.verifyUserRequest
+  authRoutes.verifyUserRequest,
 );
 router.post(
   "/verify-user",
   authenticate,
   authValidation.verifyUser,
-  authRoutes.verifyUser
+  authRoutes.verifyUser,
 );
 router.post(
   "/reset-password-request",
   authenticate,
   authValidation.resetPasswordRequest,
-  authRoutes.resetPasswordRequest
+  authRoutes.resetPasswordRequest,
 );
 router.post(
   "/reset-password",
   authenticate,
   authValidation.resetPassword,
-  authRoutes.resetPassword
+  authRoutes.resetPassword,
 );
 router.post(
   "/profile-picture",
   authenticate,
   uploadSingleMiddleware,
   authValidation.uploadProfilePicture,
-  authRoutes.uploadProfilePicture
+  authRoutes.uploadProfilePicture,
 );
 
 router.delete(
   "/profile-picture",
   authenticate,
   authValidation.deleteProfilePicture,
-  authRoutes.deleteProfilePicture
+  authRoutes.deleteProfilePicture,
 );
 
 export default router;

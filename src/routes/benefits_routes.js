@@ -17,41 +17,41 @@ router.get(
   },
   authenticate,
   benefitsValidation.show,
-  benefitsRoutes.show
+  benefitsRoutes.show,
 );
 router.post(
   "/",
   authenticate,
   uploadSingleMiddleware,
   benefitsValidation.create,
-  benefitsRoutes.create
+  benefitsRoutes.create,
 );
 router.put(
   "/:id",
   authenticate,
   uploadSingleMiddleware,
   benefitsValidation.update,
-  benefitsRoutes.update
+  benefitsRoutes.update,
 );
 router.delete(
   "/:id",
   authenticate,
   benefitsValidation.destroy,
-  benefitsRoutes.destroy
+  benefitsRoutes.destroy,
 );
 
 router.put(
   "/:id/favourite",
   authenticate,
   benefitsValidation.favourite,
-  benefitsRoutes.favourite
+  benefitsRoutes.favourite,
 );
 
 router.put(
   "/:id/unfavourite",
   authenticate,
   benefitsValidation.unfavourite,
-  benefitsRoutes.unfavourite
+  benefitsRoutes.unfavourite,
 );
 
 router.get(
@@ -59,7 +59,7 @@ router.get(
 
   authenticate,
   benefitsValidation.favourites,
-  benefitsRoutes.favourites
+  benefitsRoutes.favourites,
 );
 
 export default router;

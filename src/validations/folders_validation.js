@@ -66,6 +66,7 @@ const update = [
     .notEmpty()
     .isMongoId()
     .withMessage("Folder ID must be a valid Mongo ID")
+    .bail()
     .custom(isFolderExists),
 ];
 
@@ -74,6 +75,7 @@ const destroy = [
     .notEmpty()
     .isMongoId()
     .withMessage("Folder ID must be a valid Mongo ID")
+    .bail()
     .custom(isFolderExists),
 ];
 

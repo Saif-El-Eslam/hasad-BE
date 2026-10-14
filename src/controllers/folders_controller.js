@@ -1,9 +1,7 @@
+import { saveWithImage, createWithImage } from "../services/image_service.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 import foldersService from "../services/folders_service.js";
 import { validationResult } from "express-validator";
-import {
-  uploadSingleFileToCloudinary,
-  deleteFilesFromCloudinary,
-} from "../middlewares/imageUploaderMiddleware.js";
 import { getSortQuery } from "../utils/sort.js";
 
 const index = async (req, res) => {
@@ -13,101 +11,86 @@ const index = async (req, res) => {
   const { sortBy, sortDirection } = req.query;
   const sortQuery = getSortQuery(sortBy, sortDirection);
 
-  foldersService
+  return foldersService
     .getFolders(query, sortQuery)
     .then((folders) => {
       return res.status(200).json(folders);
     })
     .catch((error) => {
-      return res.send(error.message).status(500);
+      throw error;
     });
 };
 
 const create = async (req, res) => {
   const validation_result = validationResult(req);
   if (!validation_result.isEmpty()) {
-    return res.status(400).json({ errors: validation_result.errors });
+    return res.status(400).json({
+      errors: validation_result
+        .array()
+        .map(({ value: _value, ...error }) => error),
+    });
   }
 
-  try {
-    const folder = {
-      name: req.body.name,
-      author: req.body.author,
-      user: req.user_id,
-    };
+  const folder = {
+    name: req.body.name,
+    author: req.body.author,
+    user: req.user_id,
+  };
 
-    const folderName = "folders";
-    if (req.file) {
-      const imageUrl = await uploadSingleFileToCloudinary(req.file, folderName);
-      folder.img_url = imageUrl;
-    }
+  const newFolder = await createWithImage(
+    folder,
+    req.file,
+    "folders",
+    foldersService.createFolder,
+  );
 
-    const newFolder = await foldersService.createFolder(folder);
-
-    return res.status(201).json(newFolder);
-  } catch (error) {
-    console.log(error);
-    return res.send(error.message).status(500);
-  }
+  return res.status(201).json(newFolder);
 };
 
 const update = async (req, res) => {
   const validation_result = validationResult(req);
   if (!validation_result.isEmpty()) {
-    return res.status(400).json({ errors: validation_result.errors });
+    return res.status(400).json({
+      errors: validation_result
+        .array()
+        .map(({ value: _value, ...error }) => error),
+    });
   }
 
-  try {
-    const folder = await foldersService.getFolderById(req.params.id);
-    if (!folder) {
-      return res.status(404).json({ message: "Folder not found" });
-    }
-
-    if (req.body.name) folder.name = req.body.name;
-    if (req.body.author) folder.author = req.body.author;
-
-    if (folder.img_url && req.file) {
-      await deleteFilesFromCloudinary([folder.img_url]);
-
-      folder.img_url = null;
-      await folder.save();
-    }
-    if (req.file) {
-      const folderName = "folders";
-      const imageUrl = await uploadSingleFileToCloudinary(req.file, folderName);
-      folder.img_url = imageUrl;
-    }
-
-    await folder.save();
-
-    return res.status(200).json(folder);
-  } catch (error) {
-    console.error("Error uploading profile picture:", error);
-    return res.status(500).json({ message: "Internal server error" });
+  const folder = await foldersService.getFolderById(req.params.id);
+  if (!folder) {
+    return res.status(404).json({ message: "Folder not found" });
   }
+
+  if (req.body.name) folder.name = req.body.name;
+  if (req.body.author) folder.author = req.body.author;
+
+  await saveWithImage(folder, req.file, "folders");
+
+  return res.status(200).json(folder);
 };
 
 const destroy = async (req, res) => {
   const validation_result = validationResult(req);
   if (!validation_result.isEmpty()) {
-    return res.status(400).json({ errors: validation_result.errors });
+    return res.status(400).json({
+      errors: validation_result
+        .array()
+        .map(({ value: _value, ...error }) => error),
+    });
   }
 
-  try {
-    const folder = await foldersService.deleteFolder(req.params.id);
-    if (!folder) return res.status(404).json({ message: "Folder not found" });
+  const folder = await foldersService.deleteFolder(req.params.id, req.user_id);
+  if (!folder) return res.status(404).json({ message: "Folder not found" });
 
-    await folder.deleteOne();
-
-    return res.status(200).json({ message: "Folder deleted successfully" });
-  } catch (error) {
-    return res.send(error.message).status(500);
-  }
+  return res.status(200).json({ message: "Folder deleted successfully" });
 };
 
-export default {
-  index,
-  create,
-  update,
-  destroy,
-};
+export default Object.fromEntries(
+  Object.entries({
+    index,
+    create,
+    update,
+    destroy,
+  }).map(([name, handler]) => [name, asyncHandler(handler)]),
+);

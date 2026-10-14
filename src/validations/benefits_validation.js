@@ -34,6 +34,7 @@ const index = [
     .notEmpty()
     .isMongoId()
     .withMessage("Invalid book id")
+    .bail()
     .custom(isBookExists),
 ];
 
@@ -42,11 +43,13 @@ const show = [
     .notEmpty()
     .isMongoId()
     .withMessage("Invalid book id")
+    .bail()
     .custom(isBookExists),
   param("id")
     .notEmpty()
     .isMongoId()
     .withMessage("Invalid benefit id")
+    .bail()
     .custom(isBenefitExists),
 ];
 
@@ -91,6 +94,7 @@ const create = [
     .notEmpty()
     .isMongoId()
     .withMessage("Invalid book id")
+    .bail()
     .custom(isBookExists),
 ];
 
@@ -130,11 +134,13 @@ const update = [
     .notEmpty()
     .isMongoId()
     .withMessage("Invalid book id")
+    .bail()
     .custom(isBookExists),
   param("id")
     .notEmpty()
     .isMongoId()
     .withMessage("Invalid benefit id")
+    .bail()
     .custom(isBenefitExists),
 ];
 
@@ -143,11 +149,13 @@ const destroy = [
     .notEmpty()
     .isMongoId()
     .withMessage("Invalid book id")
+    .bail()
     .custom(isBookExists),
   param("id")
     .notEmpty()
     .isMongoId()
     .withMessage("Invalid benefit id")
+    .bail()
     .custom(isBenefitExists),
 ];
 
@@ -156,11 +164,13 @@ const favourite = [
     .notEmpty()
     .isMongoId()
     .withMessage("Invalid book id")
+    .bail()
     .custom(isBookExists),
   param("id")
     .notEmpty()
     .isMongoId()
     .withMessage("Invalid benefit id")
+    .bail()
     .custom(isBenefitExists),
 ];
 
@@ -169,11 +179,13 @@ const unfavourite = [
     .notEmpty()
     .isMongoId()
     .withMessage("Invalid book id")
+    .bail()
     .custom(isBookExists),
   param("id")
     .notEmpty()
     .isMongoId()
     .withMessage("Invalid benefit id")
+    .bail()
     .custom(isBenefitExists),
 ];
 

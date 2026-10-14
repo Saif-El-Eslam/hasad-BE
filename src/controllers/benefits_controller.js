@@ -1,17 +1,18 @@
+import { saveWithImage, createWithImage } from "../services/image_service.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 import benefitsService from "../services/benefits_service.js";
-import booksService from "../services/books_service.js";
 import { validationResult } from "express-validator";
 import { benefitColorBorderMap } from "../config/colors.js";
-import {
-  uploadSingleFileToCloudinary,
-  deleteFilesFromCloudinary,
-} from "../middlewares/imageUploaderMiddleware.js";
 import { getSortQuery } from "../utils/sort.js";
 
 const index = async (req, res) => {
   const validation_result = validationResult(req);
   if (!validation_result.isEmpty()) {
-    return res.status(400).json({ errors: validation_result.errors });
+    return res.status(400).json({
+      errors: validation_result
+        .array()
+        .map(({ value: _value, ...error }) => error),
+    });
   }
 
   const query = {
@@ -22,131 +23,121 @@ const index = async (req, res) => {
   const { sortBy, sortDirection } = req.query;
   const sortQuery = getSortQuery(sortBy, sortDirection);
 
-  benefitsService
+  return benefitsService
     .getBenefits(query, sortQuery)
     .then((benefits) => {
       return res.status(200).json(benefits);
     })
     .catch((error) => {
-      return res.send(error.message).status(500);
+      throw error;
     });
 };
 
 const show = async (req, res) => {
   const validation_result = validationResult(req);
   if (!validation_result.isEmpty()) {
-    return res.status(400).json({ errors: validation_result.errors });
+    return res.status(400).json({
+      errors: validation_result
+        .array()
+        .map(({ value: _value, ...error }) => error),
+    });
   }
 
-  try {
-    const benefit = await benefitsService.getBenefitById(req.params.id);
-    if (!benefit) {
-      return res.status(404).json({ message: "Benefit not found" });
-    }
-
-    return res.status(200).json(benefit);
-  } catch (error) {
-    return res.send(error.message).status(500);
+  const benefit = await benefitsService.getBenefitById(req.params.id);
+  if (!benefit) {
+    return res.status(404).json({ message: "Benefit not found" });
   }
+
+  return res.status(200).json(benefit);
 };
 
 const create = async (req, res) => {
   const validation_result = validationResult(req);
   if (!validation_result.isEmpty()) {
-    return res.status(400).json({ errors: validation_result.errors });
+    return res.status(400).json({
+      errors: validation_result
+        .array()
+        .map(({ value: _value, ...error }) => error),
+    });
   }
 
-  try {
-    const benefit = {
-      name: req.body.name,
-      content: req.body.content,
-      page_number: req.body.page_number,
-      color: req.body.color,
-      border_color: benefitColorBorderMap.get(req.body.color),
-      book: req.params.bookId,
-      user: req.user_id,
-    };
+  const benefit = {
+    name: req.body.name,
+    content: req.body.content,
+    page_number: req.body.page_number,
+    color: req.body.color,
+    border_color: benefitColorBorderMap.get(req.body.color),
+    book: req.params.bookId,
+    user: req.user_id,
+  };
 
-    const folderName = "benefits";
-    if (req.file) {
-      const imageUrl = await uploadSingleFileToCloudinary(req.file, folderName);
-      benefit.img_url = imageUrl;
-    }
+  const newBenefit = await createWithImage(
+    benefit,
+    req.file,
+    "benefits",
+    benefitsService.createBenefit,
+  );
 
-    const newBenefit = await benefitsService.createBenefit(benefit);
-    if (newBenefit.book) {
-      await booksService.changeNumOfBenefits(newBenefit.book, 1);
-    }
-
-    return res.status(200).json(newBenefit);
-  } catch (error) {
-    return res.send(error.message).status(500);
-  }
+  return res.status(200).json(newBenefit);
 };
 
 const update = async (req, res) => {
   const validation_result = validationResult(req);
   if (!validation_result.isEmpty()) {
-    return res.status(400).json({ errors: validation_result.errors });
+    return res.status(400).json({
+      errors: validation_result
+        .array()
+        .map(({ value: _value, ...error }) => error),
+    });
   }
 
-  try {
-    const benefit = await benefitsService.getBenefitById(req.params.id);
-    if (!benefit) {
-      return res.status(404).json({ message: "Benefit not found" });
-    }
-
-    if (req.body.name) benefit.name = req.body.name;
-    if (req.body.content) benefit.content = req.body.content;
-    if (req.body.page_number) benefit.page_number = req.body.page_number;
-    if (req.body.color) {
-      benefit.color = req.body.color;
-      benefit.border_color = benefitColorBorderMap.get(req.body.color);
-    }
-
-    if (benefit.img_url && req.file) {
-      await deleteFilesFromCloudinary([benefit.img_url]);
-      benefit.img_url = null;
-      await benefit.save();
-    }
-    if (req.file) {
-      const folderName = "benefits";
-      const imageUrl = await uploadSingleFileToCloudinary(req.file, folderName);
-      benefit.img_url = imageUrl;
-    }
-
-    await benefit.save();
-
-    return res.status(200).json(benefit);
-  } catch (error) {
-    return res.send(error.message).status(500);
+  const benefit = await benefitsService.getBenefitById(req.params.id);
+  if (!benefit) {
+    return res.status(404).json({ message: "Benefit not found" });
   }
+
+  if (req.body.name) benefit.name = req.body.name;
+  if (req.body.content) benefit.content = req.body.content;
+  if (req.body.page_number) benefit.page_number = req.body.page_number;
+  if (req.body.color) {
+    benefit.color = req.body.color;
+    benefit.border_color = benefitColorBorderMap.get(req.body.color);
+  }
+
+  await saveWithImage(benefit, req.file, "benefits");
+
+  return res.status(200).json(benefit);
 };
 
 const destroy = async (req, res) => {
   const validation_result = validationResult(req);
   if (!validation_result.isEmpty()) {
-    return res.status(400).json({ errors: validation_result.errors });
+    return res.status(400).json({
+      errors: validation_result
+        .array()
+        .map(({ value: _value, ...error }) => error),
+    });
   }
 
-  try {
-    const benefit = await benefitsService.getBenefitById(req.params.id);
-    if (!benefit) {
-      return res.status(404).json({ message: "Benefit not found" });
-    }
-
-    await benefit.deleteOne();
-
-    return res.status(200).json({ message: "Benefit deleted successfully" });
-  } catch (error) {
-    return res.send(error.message).status(500);
+  const benefit = await benefitsService.deleteBenefit(
+    req.params.id,
+    req.user_id,
+  );
+  if (!benefit) {
+    return res.status(404).json({ message: "Benefit not found" });
   }
+
+  return res.status(200).json({ message: "Benefit deleted successfully" });
 };
 
 const favourites = async (req, res) => {
   const validation_result = validationResult(req);
   if (!validation_result.isEmpty()) {
-    return res.status(400).json({ errors: validation_result.errors });
+    return res.status(400).json({
+      errors: validation_result
+        .array()
+        .map(({ value: _value, ...error }) => error),
+    });
   }
 
   const query = {
@@ -158,55 +149,65 @@ const favourites = async (req, res) => {
   const { sortBy, sortDirection } = req.query;
   const sortQuery = getSortQuery(sortBy, sortDirection);
 
-  benefitsService
+  return benefitsService
     .getBenefits(query, sortQuery)
     .then((benefits) => {
       return res.status(200).json(benefits);
     })
     .catch((error) => {
-      return res.send(error.message).status(500);
+      throw error;
     });
 };
 
 const favourite = async (req, res) => {
   const validation_result = validationResult(req);
   if (!validation_result.isEmpty()) {
-    return res.status(400).json({ errors: validation_result.errors });
+    return res.status(400).json({
+      errors: validation_result
+        .array()
+        .map(({ value: _value, ...error }) => error),
+    });
   }
 
-  benefitsService
+  return benefitsService
     .updateBenefit(req.params.id, { favourated: true })
     .then((favourite) => {
       return res.status(200).json(favourite);
     })
     .catch((error) => {
-      return res.send(error.message).status(500);
+      throw error;
     });
 };
 
 const unfavourite = async (req, res) => {
   const validation_result = validationResult(req);
   if (!validation_result.isEmpty()) {
-    return res.status(400).json({ errors: validation_result.errors });
+    return res.status(400).json({
+      errors: validation_result
+        .array()
+        .map(({ value: _value, ...error }) => error),
+    });
   }
 
-  benefitsService
+  return benefitsService
     .updateBenefit(req.params.id, { favourated: false })
     .then((favourite) => {
       return res.status(200).json(favourite);
     })
     .catch((error) => {
-      return res.send(error.message).status(500);
+      throw error;
     });
 };
 
-export default {
-  index,
-  show,
-  create,
-  update,
-  destroy,
-  favourites,
-  favourite,
-  unfavourite,
-};
+export default Object.fromEntries(
+  Object.entries({
+    index,
+    show,
+    create,
+    update,
+    destroy,
+    favourites,
+    favourite,
+    unfavourite,
+  }).map(([name, handler]) => [name, asyncHandler(handler)]),
+);

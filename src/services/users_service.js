@@ -2,65 +2,46 @@ import User from "../models/user.js";
 
 // create a new user
 const createUser = async (user) => {
-  try {
-    const newUser = new User(user);
-    const savedUser = await newUser.save();
-    return savedUser;
-  } catch (error) {
-    throw new Error(error.message);
-  }
+  const newUser = new User(user);
+  const savedUser = await newUser.save();
+  return savedUser;
 };
 
 // get all users
 const getUsers = async () => {
-  try {
-    const users = await User.find();
-    return users;
-  } catch (error) {
-    throw new Error(error.message);
-  }
+  const users = await User.find();
+  return users;
 };
 
 // get a single user By Id
-const getUserById = async (id) => {
-  try {
-    const user = await User.findById(id);
-    return user;
-  } catch (error) {
-    throw new Error(error.message);
-  }
+const getUserById = async (id, includeSecrets = false) => {
+  const query = User.findById(id);
+  if (includeSecrets) query.select("+password_hash +token +session_version");
+  const user = await query;
+  return user;
 };
 
 // get a single user By Email
-const getUserByEmail = async (email) => {
-  try {
-    const user = await User.findOne({ email });
-    return user;
-  } catch (error) {
-    throw new Error(error.message);
-  }
+const getUserByEmail = async (email, includeSecrets = false) => {
+  const query = User.findOne({ email });
+  if (includeSecrets) query.select("+password_hash +token +session_version");
+  const user = await query;
+  return user;
 };
 
 // update a user
 const updateUser = async (id, user) => {
-  try {
-    const updatedUser = await User.findByIdAndUpdate(id, user, {
-      new: true,
-    });
-    return updatedUser;
-  } catch (error) {
-    throw new Error(error.message);
-  }
+  const updatedUser = await User.findByIdAndUpdate(id, user, {
+    new: true,
+    runValidators: true,
+  });
+  return updatedUser;
 };
 
 // delete a user
 const deleteUser = async (id) => {
-  try {
-    const deletedUser = await User.findByIdAndDelete(id);
-    return deletedUser;
-  } catch (error) {
-    throw new Error(error.message);
-  }
+  const deletedUser = await User.findByIdAndDelete(id);
+  return deletedUser;
 };
 
 export default {

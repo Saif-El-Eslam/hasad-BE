@@ -45,6 +45,7 @@ const index = [
     .optional()
     .isMongoId()
     .withMessage("Folder ID must be a valid Mongo ID")
+    .bail()
     .custom(isFolderExists),
 ];
 
@@ -59,6 +60,7 @@ const create = [
     .optional()
     .isMongoId()
     .withMessage("Folder ID must be a valid Mongo ID")
+    .bail()
     .custom(isFolderExists),
   body("image").custom((value, { req }) => {
     if (!req.file) {
@@ -83,6 +85,7 @@ const create = [
 
 const update = [
   body("title").optional().isString().withMessage("Title must be a string"),
+  body("name").optional().isString().withMessage("Name must be a string"),
   body("author").optional().isString().withMessage("Author must be a string"),
   body("image").custom((value, { req }) => {
     if (!req.file) {
@@ -107,11 +110,13 @@ const update = [
     .optional()
     .isMongoId()
     .withMessage("Folder ID must be a valid Mongo ID")
+    .bail()
     .custom(isBookMatchFolder),
   param("id")
     .notEmpty()
     .isMongoId()
     .withMessage("Book ID must be a valid Mongo ID")
+    .bail()
     .custom(isBookExists),
 ];
 
@@ -120,11 +125,13 @@ const destroy = [
     .optional()
     .isMongoId()
     .withMessage("Folder ID must be a valid Mongo ID")
+    .bail()
     .custom(isBookMatchFolder),
   param("id")
     .notEmpty()
     .isMongoId()
     .withMessage("Book ID must be a valid Mongo ID")
+    .bail()
     .custom(isBookExists),
 ];
 

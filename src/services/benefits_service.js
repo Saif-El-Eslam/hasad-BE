@@ -1,58 +1,34 @@
+import { createResource, deleteResource } from "./lifecycle_service.js";
 import Benefit from "../models/benefit.js";
 
 // create a new benefit
-const createBenefit = async (benefit) => {
-  try {
-    const newBenefit = new Benefit(benefit);
-    const savedBenefit = await newBenefit.save();
-    return savedBenefit;
-  } catch (error) {
-    throw new Error(error.message);
-  }
-};
+const createBenefit = (values) => createResource("benefit", values);
 
 // get all benefits
 const getBenefits = async (query = {}, sort = { createdAt: -1 }) => {
-  try {
-    // get benefits by query
-    const benefits = await Benefit.find(query).sort(sort);
-    return benefits;
-  } catch (error) {
-    throw new Error(error.message);
-  }
+  // get benefits by query
+  const benefits = await Benefit.find(query).sort(sort);
+  return benefits;
 };
 
 // get a single benefit By Id
 const getBenefitById = async (id) => {
-  try {
-    const benefit = await Benefit.findById(id);
-    return benefit;
-  } catch (error) {
-    throw new Error(error.message);
-  }
+  const benefit = await Benefit.findById(id);
+  return benefit;
 };
 
 // update a benefit
 const updateBenefit = async (id, benefit) => {
-  try {
-    const updatedBenefit = await Benefit.findByIdAndUpdate(id, benefit, {
-      new: true,
-    });
-    return updatedBenefit;
-  } catch (error) {
-    throw new Error(error.message);
-  }
+  const updatedBenefit = await Benefit.findByIdAndUpdate(id, benefit, {
+    new: true,
+    runValidators: true,
+  });
+  return updatedBenefit;
 };
 
 // delete a benefit
-const deleteBenefit = async (id) => {
-  try {
-    const deletedBenefit = await Benefit.findByIdAndDelete(id);
-    return deletedBenefit;
-  } catch (error) {
-    throw new Error(error.message);
-  }
-};
+const deleteBenefit = (id, user) =>
+  deleteResource("benefit", { _id: id, ...(user ? { user } : {}) });
 
 export default {
   createBenefit,

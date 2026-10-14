@@ -1,47 +1,57 @@
 import express from "express";
+import helmet from "helmet";
+import { rateLimit } from "express-rate-limit";
+import { randomUUID } from "node:crypto";
 import auth_routes from "./routes/auth_routes.js";
 import folders_routes from "./routes/folders_routes.js";
 import books_routes from "./routes/books_routes.js";
-// import benefits_routes from "./routes/benefits_routes.js";
 import { config } from "./config/index.js";
 import { connectDB } from "./config/db.js";
+import logger from "./utils/logger.js";
+import { errorHandler } from "./middlewares/errorHandler.js";
 
 const app = express();
-
-// Middleware
+app.disable("x-powered-by");
+// Configure only known reverse proxies; never trust arbitrary forwarding headers.
+if (process.env.TRUST_PROXY_HOPS)
+  app.set("trust proxy", Number(process.env.TRUST_PROXY_HOPS));
+app.use(helmet());
+app.use((req, res, next) => {
+  req.requestId = randomUUID();
+  res.setHeader("X-Request-Id", req.requestId);
+  if (config.environment === "development")
+    res.on("finish", () =>
+      logger.info({
+        event: "request",
+        requestId: req.requestId,
+        method: req.method,
+        path: req.path,
+        status: res.statusCode,
+      }),
+    );
+  next();
+});
+const authLimiter = rateLimit({
+  windowMs: 15 * 60000,
+  limit: 100,
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
+  message: { message: "Too many requests" },
+});
+app.use("/api/auth", authLimiter);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Ensure DB is connected before every request (safe for both serverless and persistent)
 app.use(async (req, res, next) => {
   try {
     await connectDB();
     next();
-  } catch (error) {
+  } catch {
     res.status(503).json({ message: "Database unavailable" });
   }
 });
-
-config.environment === "development" &&
-  app.use((req, res, next) => {
-    console.log(
-      `Method: { ${req.method} } ||`,
-      `URL: { ${req.url} } ||`,
-      `Body: ${JSON.stringify(req.body)}`,
-    );
-
-    next();
-  });
-
-// Add routes with /api prefix
 app.use("/api/auth", auth_routes);
 app.use("/api/folders", folders_routes);
 app.use("/api/books", books_routes);
-// app.use("/api/benefits", benefits_routes); // This route is nested in books_routes
-
-// Home Route that returns a meaningful message
-app.get("/", (req, res) => {
-  res.send("ًWelcome to Hasad API!");
-});
-
+app.get("/", (_req, res) => res.send("ًWelcome to Hasad API!"));
+app.use(errorHandler);
 export default app;

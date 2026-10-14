@@ -17,6 +17,8 @@ const register = [
     .isEmail()
     .withMessage("Email is invalid"),
   body("password")
+    .isString()
+    .bail()
     .notEmpty()
     .withMessage("Password is required")
     .isLength({
@@ -26,7 +28,10 @@ const register = [
   body("verify_password")
     .notEmpty()
     .withMessage("Verify password is required")
-    .equals("password")
+    .custom(
+      (value, { req }) =>
+        typeof value === "string" && value === req.body.password,
+    )
     .withMessage("Passwords do not match"),
 ];
 
@@ -61,7 +66,11 @@ const login = [
     .withMessage("Email is required")
     .isEmail()
     .withMessage("Email is invalid"),
-  body("password").notEmpty().withMessage("Password is required"),
+  body("password")
+    .isString()
+    .bail()
+    .notEmpty()
+    .withMessage("Password is required"),
 ];
 
 const logout = [];
@@ -72,14 +81,23 @@ const verifyUser = [
   body("verify_otp")
     .notEmpty()
     .withMessage("OTP is required")
-    .isNumeric()
+    .isString()
+    .bail()
+    .matches(/^\d{4}$/)
     .withMessage("OTP must be a number"),
 ];
 
 const resetPasswordRequest = [];
 
 const resetPassword = [
+  body("otp")
+    .isString()
+    .bail()
+    .matches(/^\d{4}$/)
+    .withMessage("Invalid OTP"),
   body("password")
+    .isString()
+    .bail()
     .notEmpty()
     .withMessage("Password is required")
     .isLength({
@@ -89,7 +107,10 @@ const resetPassword = [
   body("verify_password")
     .notEmpty()
     .withMessage("Verify password is required")
-    .equals("password")
+    .custom(
+      (value, { req }) =>
+        typeof value === "string" && value === req.body.password,
+    )
     .withMessage("Passwords do not match"),
 ];
 

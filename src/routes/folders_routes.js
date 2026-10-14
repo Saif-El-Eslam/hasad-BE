@@ -13,20 +13,20 @@ router.post(
   authenticate,
   uploadSingleMiddleware,
   foldersValidation.create,
-  foldersRoutes.create
+  foldersRoutes.create,
 );
 router.put(
   "/:id",
   authenticate,
   uploadSingleMiddleware,
   foldersValidation.update,
-  foldersRoutes.update
+  foldersRoutes.update,
 );
 router.delete(
   "/:id",
   authenticate,
   foldersValidation.destroy,
-  foldersRoutes.destroy
+  foldersRoutes.destroy,
 );
 
 router.use("/:folderId/books", BooksRoutes);

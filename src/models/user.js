@@ -17,6 +17,7 @@ const userSchema = new mongoose.Schema(
     password_hash: {
       type: String,
       required: true,
+      select: false,
     },
     profile_pic_url: {
       type: String,
@@ -29,6 +30,7 @@ const userSchema = new mongoose.Schema(
       required: false,
     },
     token: {
+      select: false,
       type: String,
       required: false,
     },
@@ -38,15 +40,31 @@ const userSchema = new mongoose.Schema(
       required: false,
     },
     verify_otp: {
+      select: false,
       type: String,
       required: false,
     },
+    session_version: { type: Number, default: 0, select: false },
     img_url: {
       type: String,
       required: false,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
+
+userSchema.index({ email: 1 }, { unique: true });
+userSchema.set("toJSON", {
+  transform: (_doc, user) => {
+    for (const key of [
+      "password_hash",
+      "verify_otp",
+      "token",
+      "session_version",
+    ])
+      delete user[key];
+    return user;
+  },
+});
 
 export default mongoose.model("User", userSchema);
