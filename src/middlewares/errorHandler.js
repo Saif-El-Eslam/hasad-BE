@@ -14,6 +14,8 @@ export const errorHandler = (error, req, res, next) => {
     return res.status(400).json({ message: "File size exceeds 5MB" });
   if (error.name === "MulterError")
     return res.status(400).json({ message: "Invalid upload" });
+  if (error.status === 503)
+    return res.status(503).json({ message: "Database unavailable" });
   const status =
     error.status === 429
       ? 429

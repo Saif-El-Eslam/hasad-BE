@@ -1,0 +1,42 @@
+name: Encrypted database backup
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "20 2 * * *"
+permissions:
+  contents: read
+  id-token: write
+concurrency:
+  group: database-backup
+  cancel-in-progress: false
+jobs:
+  backup:
+    if: vars.BACKUPS_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      BACKUP_DB_URL: ${{ secrets.PROD_DB_URL }}
+      BACKUP_ENCRYPTION_KEY: ${{ secrets.BACKUP_ENCRYPTION_KEY }}
+      BACKUP_S3_URI: ${{ vars.BACKUP_S3_URI }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_BACKUP_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_BACKUP_REGION }}
+      - name: Create, authenticate and upload encrypted archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$BACKUP_S3_URI" == s3://* ]]
+          export BACKUP_DIR="$RUNNER_TEMP/hasad-backups"
+          npm run ops:backup
+          for archive in "$BACKUP_DIR"/*.archive.enc; do
+            npm run ops:restore-check -- "$archive"
+            aws s3 cp "$archive" "${BACKUP_S3_URI%/}/$(basename "$archive")" --sse AES256 --no-progress
+          done

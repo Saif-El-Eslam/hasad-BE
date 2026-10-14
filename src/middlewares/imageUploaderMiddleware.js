@@ -83,7 +83,7 @@ export const deleteFilesFromCloudinary = async (imageUrls) => {
       if (!path.startsWith("hasad/")) throw new Error("Invalid asset folder");
       const publicId = decodeURIComponent(path.replace(/\.[^/.]+$/, ""));
 
-      return await cloudinary.uploader.destroy(publicId);
+      return await cloudinary.uploader.destroy(publicId, { timeout: 10000 });
     } catch (error) {
       return { result: "Failed to delete" };
     }

@@ -4,19 +4,21 @@ import { config, validateConfig } from "./config/index.js";
 import logger from "./utils/logger.js";
 import { connectDB } from "./config/db.js";
 import { processCleanup } from "./services/asset_cleanup_service.js";
-import Challenge from "./models/otpChallenge.js";
+import { ensureOperationalIndexes } from "./services/operational_indexes.js";
+import { processRecoveryMail } from "./services/recovery_mail_service.js";
 import app from "./app.js";
 
 export const startServer = async () => {
   validateConfig();
   await connectDB();
   // This collection contains only new challenges; no legacy user data is modified.
-  await Challenge.createIndexes();
+  await ensureOperationalIndexes();
   const server = app.listen(config.port, () =>
     logger.info(`Server running on port ${config.port}`),
   );
   const worker = setInterval(() => {
     void processCleanup();
+    void processRecoveryMail();
   }, 60000);
   worker.unref();
   let stopping = false;

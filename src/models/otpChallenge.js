@@ -2,7 +2,11 @@ import mongoose from "mongoose";
 
 const schema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, required: true },
-  purpose: { type: String, enum: ["verify", "reset"], required: true },
+  purpose: {
+    type: String,
+    enum: ["verify", "reset", "recover"],
+    required: true,
+  },
   hash: { type: String, required: true },
   expiresAt: { type: Date, required: true },
   requestedAt: { type: Date, required: true },

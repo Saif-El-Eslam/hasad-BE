@@ -17,6 +17,9 @@ export const config = {
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || "12h",
+  mailPassword: process.env.GOOGLE_APP_PASSWORD || process.env.PASSWORD,
+  cronSecret: process.env.CRON_SECRET,
+  operationsSecret: process.env.OPERATIONS_SECRET,
 };
 
 export const validateConfig = () => {
@@ -27,7 +30,7 @@ export const validateConfig = () => {
     CLOUDINARY_API_KEY: config.api_key,
     CLOUDINARY_API_SECRET: config.api_secret,
     EMAIL: process.env.EMAIL,
-    GOOGLE_APP_PASSWORD: process.env.GOOGLE_APP_PASSWORD,
+    GOOGLE_APP_PASSWORD: config.mailPassword,
   };
   const missing = Object.entries(required)
     .filter(([, value]) => !value)

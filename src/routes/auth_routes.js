@@ -3,12 +3,19 @@ import { authenticate } from "../middlewares/authMiddleware.js";
 import authRoutes from "../controllers/auth_controller.js";
 import authValidation from "../validations/auth_validation.js";
 import { uploadSingleMiddleware } from "../middlewares/imageUploaderMiddleware.js";
+import recovery from "../controllers/recovery_controller.js";
+import {
+  recoveryRequest,
+  recoveryConfirm,
+} from "../validations/recovery_validation.js";
 
 const router = express.Router();
 
 router.post("/register", authValidation.register, authRoutes.register);
 router.post("/login", authValidation.login, authRoutes.login);
 router.post("/logout", authenticate, authRoutes.logout);
+router.post("/forgot-password-request", recoveryRequest, recovery.request);
+router.post("/forgot-password", recoveryConfirm, recovery.confirm);
 router.post(
   "/verify-user-request",
   authenticate,

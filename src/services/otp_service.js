@@ -2,13 +2,14 @@ import { randomInt, createHmac } from "node:crypto";
 import Challenge from "../models/otpChallenge.js";
 import { config } from "../config/index.js";
 
-const digest = (user, purpose, code) =>
+export const digest = (user, purpose, code) =>
   createHmac("sha256", config.jwtSecret)
     .update(`${user}:${purpose}:${code}`)
     .digest("hex");
 
 export const issueChallenge = async (user, purpose) => {
-  const code = String(randomInt(0, 10000)).padStart(4, "0");
+  const digits = purpose === "recover" ? 6 : 4;
+  const code = String(randomInt(0, 10 ** digits)).padStart(digits, "0");
   const now = new Date();
   try {
     await Challenge.findOneAndUpdate(
@@ -41,20 +42,24 @@ export const issueChallenge = async (user, purpose) => {
 export const cancelChallenge = (user, purpose, code) =>
   Challenge.deleteOne({ user, purpose, hash: digest(user, purpose, code) });
 
-export const consumeChallenge = async (user, purpose, code) => {
-  if (typeof code !== "string" || !/^\d{4}$/.test(code)) return false;
+export const consumeChallenge = async (user, purpose, code, session = null) => {
+  const pattern = purpose === "recover" ? /^\d{6}$/ : /^\d{4}$/;
+  if (typeof code !== "string" || !pattern.test(code)) return false;
   const challenge = await Challenge.findOneAndUpdate(
     { user, purpose, expiresAt: { $gt: new Date() }, attempts: { $lt: 5 } },
     { $inc: { attempts: 1 } },
-    { new: true },
+    { new: true, session },
   );
   if (!challenge || challenge.hash !== digest(user, purpose, code))
     return false;
-  const result = await Challenge.deleteOne({
-    _id: challenge._id,
-    hash: challenge.hash,
-    attempts: { $lte: 5 },
-    expiresAt: { $gt: new Date() },
-  });
+  const result = await Challenge.deleteOne(
+    {
+      _id: challenge._id,
+      hash: challenge.hash,
+      attempts: { $lte: 5 },
+      expiresAt: { $gt: new Date() },
+    },
+    { session },
+  );
   return result.deletedCount === 1;
 };

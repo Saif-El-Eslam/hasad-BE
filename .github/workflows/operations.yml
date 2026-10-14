@@ -1,0 +1,29 @@
+name: Operations
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/5 * * * *"
+permissions:
+  contents: read
+jobs:
+  maintenance:
+    if: vars.OPERATIONS_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    env:
+      API_BASE_URL: ${{ vars.API_BASE_URL }}
+      CRON_SECRET: ${{ secrets.CRON_SECRET }}
+      OPERATIONS_SECRET: ${{ secrets.OPERATIONS_SECRET }}
+      CLEANUP_QUEUE_ALERT_THRESHOLD: ${{ vars.CLEANUP_QUEUE_ALERT_THRESHOLD || '100' }}
+    steps:
+      - name: Check readiness and process cleanup
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$API_BASE_URL"
+          test -n "$CRON_SECRET"
+          test -n "$OPERATIONS_SECRET"
+          curl --fail --silent --show-error --max-time 30 --header "Authorization: Bearer $OPERATIONS_SECRET" "${API_BASE_URL%/}/internal/health/ready"
+          curl --fail --silent --show-error --max-time 55 --header "Authorization: Bearer $CRON_SECRET" "${API_BASE_URL%/}/internal/jobs/asset-cleanup"
+          curl --fail --silent --show-error --max-time 30 --header "Authorization: Bearer $OPERATIONS_SECRET" "${API_BASE_URL%/}/internal/metrics" > /tmp/metrics.json
+          jq -e --argjson threshold "$CLEANUP_QUEUE_ALERT_THRESHOLD" '.assetCleanup.pending < $threshold and .assetCleanup.oldestAgeSeconds < 86400 and .recoveryMail.pending < $threshold' /tmp/metrics.json

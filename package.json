@@ -7,14 +7,20 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
-    "build": "echo No build step required",
+    "build": "node --input-type=module -e \"await import('sharp'); await import('bcrypt')\"",
     "check": "node scripts/check-syntax.js",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "db:check": "node scripts/database-maintenance.js",
     "db:indexes": "node scripts/database-maintenance.js --apply",
-    "db:reconcile": "node scripts/database-maintenance.js --reconcile"
+    "db:reconcile": "node scripts/database-maintenance.js --reconcile",
+    "ops:preflight": "node scripts/preflight.js",
+    "ops:providers": "node scripts/preflight.js --providers",
+    "ops:cleanup": "node scripts/process-cleanup.js",
+    "db:duplicates": "node scripts/database-maintenance.js --duplicates",
+    "ops:backup": "node scripts/backup-database.js",
+    "ops:restore-check": "node scripts/restore-backup.js"
   },
   "repository": {
     "type": "git",
@@ -27,6 +33,7 @@
   },
   "homepage": "https://github.com/Saif-El-Eslam/hasad-BE#readme",
   "dependencies": {
+    "@vercel/functions": "^3.10.1",
     "bcrypt": "^6.0.0",
     "cloudinary": "^2.11.0",
     "dotenv": "^16.4.5",

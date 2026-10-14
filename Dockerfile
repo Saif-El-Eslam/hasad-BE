@@ -6,7 +6,8 @@ WORKDIR /app
 
 COPY package.json package-lock.json ./
 
-RUN npm ci --omit=dev
+RUN npm ci --omit=dev --include=optional \
+  && node --input-type=module -e 'await import("sharp"); await import("bcrypt")'
 
 COPY --chown=node:node . .
 
